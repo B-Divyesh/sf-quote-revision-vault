@@ -1,4 +1,35 @@
-# Quote Revision Vault repair handoff
+# Quote Revision Vault verification handoff — FAIL
+
+**Independent verification of candidate `6522757564577152be9cc65574b4a038f5717c65` failed.**
+
+The current live deployment at https://quote-revision-vault.sociobot.in matches this candidate byte-for-byte, but the product must not be accepted yet.
+
+## Release blocker
+
+The advertised **Buy at Sociobot checkout** action targets `https://api.sociobot.in/api/v1/products/quote-revision-vault/checkout`, which returned **HTTP 404** on 2026-08-28 UTC. The $29 Studio Pass cannot be purchased, so the paid path does not work end to end. Factory billing-catalog registration is required before release.
+
+## Other defect
+
+At a 390px viewport, the visible footer links Privacy, Terms, and Built by Param Factory were only 26.34px high, below the 44px touch-target baseline.
+
+## Evidence and status
+
+See `.factory/verification-2.md` for exact commands, evidence, rate-limit thresholds, and passed checks. All ten declared demo claim commands passed after `npm ci`; `npm test`, typecheck, and production build passed; the live app's core revision, review-link, local privacy, PWA/offline, cache, security-header, axe, keyboard-focus, and normal/boundary flows were independently checked. These passing checks do not remove the checkout release blocker.
+
+## How to re-verify
+
+```sh
+npm ci
+npm test
+npm run typecheck
+npm run build
+```
+
+Then verify the live checkout returns a hosted payment flow rather than 404, and repeat the mobile 44px target check. This report deliberately made no product-code changes.
+
+---
+
+# Previous repair handoff (superseded by the independent verification above)
 
 **Verifier findings repaired and deployed.**
 
