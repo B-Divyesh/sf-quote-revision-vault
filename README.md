@@ -2,7 +2,7 @@
 
 Quote Revision Vault is an offline-first quote editor for solo service providers. It keeps each saved revision and compares line-item changes before billing.
 
-Quotes stay in IndexedDB until you export a vault file or copy a review link. The app works offline after the first visit. The free tier creates one quote with revision history. A $29 one-time Studio Pass permits more than one quote.
+Quotes stay in IndexedDB until you export a vault file or copy a review link. The app works offline after the first visit. The free vault creates one quote with revision history.
 
 Try the isolated sample at `/demo`. It uses a separate IndexedDB database and never copies changes into the real vault.
 
@@ -35,6 +35,6 @@ The customer can return an acknowledgment code. This records review only and is 
 
 ## Privacy and payment
 
-There are no analytics, ads, remote fonts, or runtime CDNs. The review-link registry stores only a random ID, expiry, secret hash, and revocation time. It never receives quote contents. License verification sends only the pasted license token to Sociobot. Checkout uses the Sociobot billing API; no payment provider is embedded here.
+There are no analytics, ads, remote fonts, or runtime CDNs. The review-link registry stores only a random ID, expiry, secret hash, and revocation time. It never receives quote contents. License verification sends only a pasted Studio Pass token to Sociobot. Studio Pass sales remain hidden until the factory billing catalog has a live product entry; no payment provider is embedded here.
 
 See `/privacy` and `/terms` in the app. The code is MIT licensed.

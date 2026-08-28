@@ -2,7 +2,7 @@ import './style.css';
 import { emptyQuote, sampleQuote } from './sample';
 import { exportVault, importVault, listQuotes, removeQuote, resetDemo, saveQuote, setDemoStorage } from './storage';
 import type { Acknowledgement, LineItem, Quote, QuoteSnapshot, Revision, SharePacket } from './types';
-import { captureLicense, checkoutUrl, hasLicense, hasStoredLicense, storeLicense, verifyLicense } from './license';
+import { captureLicense, hasLicense, hasStoredLicense, storeLicense, verifyLicense } from './license';
 import { getReviewLinkState, randomOwnerKey, registerReviewLink, revokeReviewLink } from './reviewRegistry';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
@@ -51,7 +51,7 @@ function header() {
       <nav class="nav" aria-label="Main navigation">${navLink('/demo','Demo')}${navLink('/vault','Vault')}${navLink('/privacy','Privacy')}</nav>
     </header>
     ${isDemo ? `<aside class="demo-banner" aria-label="Demo mode"><span>Demo — sample data, nothing is saved</span><button id="reset-demo" type="button">Reset demo</button><a href="/vault" id="start-real">Start for real</a></aside>` : ''}
-    ${hasStoredLicense() && !hasLicense() ? `<aside class="license-banner" role="status">The saved license is no longer active. <a href="${checkoutUrl}">Buy a Studio Pass at Sociobot checkout</a>.</aside>` : ''}
+    ${hasStoredLicense() && !hasLicense() ? `<aside class="license-banner" role="status">The saved Studio Pass is no longer active. Paste a current license to use more than one quote.</aside>` : ''}
     <div class="route-announcer" aria-live="polite" id="route-announcer"></div>`;
 }
 
@@ -78,7 +78,7 @@ function landing() {
         <h1 id="landing-title" tabindex="-1">Revise quotes without losing the past</h1>
         <p class="hero-deck">For solo service providers who need to prove what changed before billing.</p>
         <div class="hero-actions"><a class="button" href="/demo">Try it with sample data</a><span class="action-note">See three saved revisions and their price changes.</span></div>
-        <ul class="facts"><li>Quote data stays here until you share it</li><li>Works offline after your first visit</li><li>Free for one quote · $29 once for multiple quotes</li></ul>
+        <ul class="facts"><li>Quote data stays here until you share it</li><li>Works offline after your first visit</li><li>The free vault creates one quote</li></ul>
       </div>
       <div class="hero-art">
         <picture><source media="(max-width: 600px)" type="image/avif" srcset="/assets/revision-route-480.avif"><source media="(max-width: 600px)" type="image/webp" srcset="/assets/revision-route-480.webp"><source type="image/avif" srcset="/assets/revision-route.avif"><source type="image/webp" srcset="/assets/revision-route.webp"><img src="/assets/revision-route.jpg" width="760" height="1140" fetchpriority="high" decoding="async" alt="An art-deco route carries quote pages through a brass archive gate."></picture>
@@ -90,7 +90,7 @@ function landing() {
     </div></section>
     <section class="section"><div class="shell"><p class="eyebrow">How it works</p><h2>Save. Compare. Send.</h2><div class="steps"><div class="step"><h3>Save each revision</h3><p>Name the reason for every price or scope change.</p></div><div class="step"><h3>Compare any two</h3><p>Read line-item changes and totals in one view.</p></div><div class="step"><h3>Send the receipt</h3><p>Export a PDF or copy a dated review link.</p></div></div></div></section>
     <section class="section dark"><div class="shell boundaries"><div><p class="eyebrow">Local by default</p><h2>Your records stay close</h2><p class="measure">Quotes and revisions stay in this browser. Export a vault file for your own backup.</p></div><div><p class="eyebrow">Clear boundaries</p><h2>This is not bookkeeping</h2><ul><li>No payments or invoices.</li><li>No legal e-signatures.</li><li>No customer tracking.</li><li>No cloud account or automatic sync.</li></ul></div></div></section>
-    <section class="section"><div class="shell"><div class="paid-ticket"><div><p class="eyebrow">One-time Studio Pass</p><h2>Create more than one quote</h2><p>Pay $29 once to create multiple quotes. One quote, revision history, PDF export, and backups stay free.</p></div><div><p class="price">$29 once</p><a class="button" href="${checkoutUrl}">Buy at Sociobot checkout</a><p><button type="button" class="button ghost small" id="restore-license">Paste a license</button></p></div></div></div></section>
+    <section class="section"><div class="shell"><div class="paid-ticket"><div><p class="eyebrow">Studio Pass access</p><h2>Use an existing Studio Pass</h2><p>Studio Pass sales are unavailable while the billing catalog is updated. One quote, revision history, PDF export, and backups stay free.</p></div><div><button type="button" class="button ghost small" id="restore-license">Paste a license</button></div></div></div></section>
   </main>`);
   bindLicense();
 }
@@ -107,7 +107,8 @@ async function loadVault() {
     renderVault();
   } catch {
     setMeta('Vault unavailable — Quote Revision Vault', 'Open your local quote revision history.');
-    page(`<main id="main" class="page"><div class="shell"><h1 tabindex="-1">Your vault could not open</h1><p>Browser storage is blocked or unavailable. Allow site storage, then reload this page.</p><button class="button" type="button" onclick="location.reload()">Reload the vault</button></div></main>`);
+    page(`<main id="main" class="page"><div class="shell"><h1 tabindex="-1">Your vault could not open</h1><p>Browser storage is blocked or unavailable. Allow site storage, then reload this page.</p><button class="button" type="button" id="reload-vault">Reload the vault</button></div></main>`);
+    document.querySelector('#reload-vault')?.addEventListener('click', () => location.reload());
   }
 }
 
@@ -369,7 +370,7 @@ function legal(kind: 'privacy'|'terms') {
     page(`<main id="main" class="page"><article class="shell legal"><p class="eyebrow">Privacy</p><h1 tabindex="-1">Your quotes stay in your browser</h1><p>Quote Revision Vault stores quotes and revision history in IndexedDB on this device. Demo records use a separate database.</p><h2>Data you choose to send</h2><p>A review link contains one saved revision. Its quote contents stay in the link and are never sent to our server.</p><p>To support blocking, our registry stores a random link ID, expiry, secret hash, and revocation time. It stores no quote or customer details.</p><p>License verification sends only your license token to the Sociobot billing API. We do not load analytics, ads, remote fonts, or tracking scripts.</p><h2>Delete or move your records</h2><p>Delete a quote inside the vault. Clear this site’s browser data to remove everything. Export a vault file before moving devices.</p><h2>Contact</h2><p>Questions can be sent to <a href="mailto:privacy@sociobot.in">privacy@sociobot.in</a>.</p></article></main>`);
   } else {
     setMeta('Terms — Quote Revision Vault','Terms for using Quote Revision Vault and its review receipts.');
-    page(`<main id="main" class="page"><article class="shell legal"><p class="eyebrow">Terms</p><h1 tabindex="-1">Use the vault as a record</h1><p>Quote Revision Vault helps you record quote changes. It does not provide bookkeeping, legal, tax, payment, or signature services.</p><h2>Review receipts</h2><p>A customer acknowledgment records that a person reviewed a revision. It is not a legally binding electronic signature.</p><h2>Your responsibility</h2><p>You control your local records and backups. Check every quote and PDF before sending or billing.</p><h2>Studio Pass</h2><p>The $29 Studio Pass is a one-time purchase to create multiple quotes. Sociobot and Dodo act as merchant of record. A refund revokes the license.</p><h2>Warranty</h2><p>The software is provided as available without a promise that it fits every business process. Your legal rights under local law still apply.</p></article></main>`);
+    page(`<main id="main" class="page"><article class="shell legal"><p class="eyebrow">Terms</p><h1 tabindex="-1">Use the vault as a record</h1><p>Quote Revision Vault helps you record quote changes. It does not provide bookkeeping, legal, tax, payment, or signature services.</p><h2>Review receipts</h2><p>A customer acknowledgment records that a person reviewed a revision. It is not a legally binding electronic signature.</p><h2>Your responsibility</h2><p>You control your local records and backups. Check every quote and PDF before sending or billing.</p><h2>Studio Pass</h2><p>Studio Pass sales are unavailable while the billing catalog is updated. Existing pass holders can paste a current license to create multiple quotes.</p><h2>Warranty</h2><p>The software is provided as available without a promise that it fits every business process. Your legal rights under local law still apply.</p></article></main>`);
   }
 }
 

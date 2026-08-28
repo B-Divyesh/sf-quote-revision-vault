@@ -212,7 +212,7 @@ input[aria-invalid="true"] { border-color: var(--danger); border-width: 3px; }
 .footer-inner { width: min(1180px, 100%); margin: auto; display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: end; }
 .site-footer p { margin: 0; max-width: 34rem; }
 .footer-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 16px; }
-.site-footer a { color: var(--paper); }
+.site-footer a { color: var(--paper); display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 10px 4px; }
 .provenance { margin-top: 10px !important; color: #bdc8c5; font-size: .82rem; }
 
 @media (max-width: 850px) {

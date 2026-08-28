@@ -5,8 +5,6 @@ const DAY = 86400000;
 
 interface Verdict { valid: boolean; checkedAt: number; reason: string }
 
-export const checkoutUrl = `https://api.sociobot.in/api/v1/products/${SLUG}/checkout`;
-
 export function captureLicense(): void {
   const url = new URL(location.href);
   const token = url.searchParams.get('license');

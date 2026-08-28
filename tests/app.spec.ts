@@ -188,7 +188,7 @@ test('@claim:offline-reload opens the demo without a network after first visit',
   await expect(page.getByText('Revision 3', { exact: true })).toBeVisible();
 });
 
-test('@claim:paid-license unlocks creation of more than one real quote', async ({ page }) => {
+test('an existing valid Studio Pass unlocks creation of more than one real quote', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('sb_license:quote-revision-vault','test-token');
     localStorage.setItem('sb_license_verdict:quote-revision-vault',JSON.stringify({valid:true,reason:'ok',checkedAt:Date.now()}));
@@ -246,7 +246,7 @@ test('malformed backups get stable plain-language feedback', async ({ page }) =>
   await expect(page.locator('#vault-status')).not.toContainText('position');
 });
 
-test('390px controls meet touch size and the page has no horizontal overflow', async ({ page }) => {
+test('390px controls, including footer links, meet touch size and the page has no horizontal overflow', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/demo');
   for (const selector of ['#reset-demo', '#start-real', '#export-pdf', '#delete-quote', '#add-item', '#restore-revision', '#create-share', '#import-receipt']) {
@@ -254,8 +254,41 @@ test('390px controls meet touch size and the page has no horizontal overflow', a
     expect(box, selector).not.toBeNull();
     expect(box!.height, selector).toBeGreaterThanOrEqual(44);
   }
+  for (const selector of ['.footer-links a[href="/privacy"]', '.footer-links a[href="/terms"]', '.footer-links a[href="https://hello-factory.sociobot.in"]']) {
+    const box = await page.locator(selector).boundingBox();
+    expect(box, selector).not.toBeNull();
+    expect(box!.width, selector).toBeGreaterThanOrEqual(44);
+    expect(box!.height, selector).toBeGreaterThanOrEqual(44);
+  }
   const sizes = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth }));
   expect(sizes.document).toBeLessThanOrEqual(sizes.viewport);
+});
+
+test('storage recovery reload is CSP-safe and works after storage becomes available', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
+  await page.addInitScript(() => {
+    const nativeIndexedDb = window.indexedDB;
+    if (!sessionStorage.getItem('qrv-storage-blocked-once')) {
+      sessionStorage.setItem('qrv-storage-blocked-once', 'true');
+      Object.defineProperty(window, 'indexedDB', { configurable: true, get: () => { throw new DOMException('Storage is blocked.', 'SecurityError'); } });
+    } else {
+      Object.defineProperty(window, 'indexedDB', { configurable: true, value: nativeIndexedDb });
+    }
+  });
+  await page.goto('/vault');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your vault could not open');
+  await page.getByRole('button', { name: 'Reload the vault' }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Keep every quote revision');
+  expect(consoleErrors.filter((message) => /Content Security Policy|inline event handler/i.test(message))).toEqual([]);
+});
+
+test('landing and terms do not expose an unavailable billing checkout', async ({ page }) => {
+  for (const path of ['/', '/terms']) {
+    await page.goto(path);
+    await expect(page.locator('a[href*="api.sociobot.in/api/v1/products/quote-revision-vault/checkout"]')).toHaveCount(0);
+    await expect(page.getByText('Studio Pass sales are unavailable while the billing catalog is updated.')).toBeVisible();
+  }
 });
 
 test('static response policy gives hashed assets immutable caching', async () => {
