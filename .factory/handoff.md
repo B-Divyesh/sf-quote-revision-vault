@@ -39,6 +39,8 @@ Completed locally on 2026-08-28 UTC:
 - `verify-url.sh http://127.0.0.1:4173/ .factory/evidence/repair-2` passed: HTTP 200, title/lang/main/one h1/alt text present, no unlabeled buttons, no console errors. Its report and screenshots are stored in `.factory/evidence/repair-2/`.
 - Playwright axe WCAG A/AA checks on landing and vault passed with no serious or critical violations. The standalone axe CLI was attempted with the installed Playwright Chromium but Selenium could not keep its Chrome session open; this is recorded in `axe-cli.txt`. Lighthouse likewise crashed its Chrome tab in this container, so no new score is claimed; the product's browser and accessibility checks above are fresh.
 - Keyboard save/error focus, desktop/mobile workflows, local privacy/no-tracking, offline reload/update behavior, response-policy assertions, and license restore are covered in the passing suite. The actual factory checkout endpoint was also rechecked and remained 404 before the public purchase action was removed.
+- Live deployment `7fe09df7-9bdc-49c5-9fda-afcb8bdd4fbf` passed `verify-url.sh` with HTTP 200, a 880ms observed load, and no console errors. Live/local `assets/index-CcKkUl0q.js` SHA-256 is `e563c1b49b83623c68dd9374a95219204b7971c651c4917c699004a605e4af87`.
+- Live 390px verification measured Privacy 59.94×46.34px, Terms 50.25×46.34px, and Built by Param Factory 237.44×46.34px. It reproduced the blocked IndexedDB state, recovered with Reload the vault without a CSP error, loaded `/demo` under `qrv-shell-v10`, and retained Revision 3 through an offline reload. The landing page exposed zero checkout links and showed the sales-unavailable notice.
 
 ## Deployment and remaining operation
 
@@ -48,4 +50,4 @@ Deploy with:
 /opt/fleet/lib/deploy-static.sh quote-revision-vault dist
 ```
 
-The Static Web App and its `/api/review-links/*` function remain unchanged. Before Studio Pass sales are re-enabled, the factory must register and enable `quote-revision-vault` in the Sociobot billing catalog, verify a hosted checkout redirect and returned-license flow, then restore a corresponding public claim and regression test. No customer currently sees a dead purchase link.
+The Static Web App and its `/api/review-links/*` function remain unchanged. The service worker cache is now `qrv-shell-v10` so the changed shell is installed as an update. Before Studio Pass sales are re-enabled, the factory must register and enable `quote-revision-vault` in the Sociobot billing catalog, verify a hosted checkout redirect and returned-license flow, then restore a corresponding public claim and regression test. No customer currently sees a dead purchase link.
