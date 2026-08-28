@@ -1,6 +1,6 @@
 {
-  "url": "http://127.0.0.1:4173",
-  "loadMs": 633,
+  "url": "https://quote-revision-vault.sociobot.in",
+  "loadMs": 632,
   "errors": [],
   "a11y": {
     "title": "Quote Revision Vault — Track every quote change",
@@ -9,6 +9,6 @@
     "main": true,
     "imgsMissingAlt": 0,
     "buttonsUnlabeled": 0,
-    "textLength": 1606
+    "textLength": 1618
   }
 }

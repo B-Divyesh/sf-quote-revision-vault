@@ -19,6 +19,8 @@ npm run preview
 
 The exact production build command is `npm run build`. Static output lands in `dist/`, with `dist/index.html` at its root.
 
+Production deployment includes the managed function in `api/`. Set the Static Web App setting `QRV_STORAGE` to an Azure Storage connection string and create the `QuoteReviewLinks` and `QuoteReviewRate` tables. The function stores only review-link status metadata and rate-limit counters.
+
 Playwright runs the product and claim tests in desktop Chromium and a 390px mobile viewport. Each claim and its verification command is listed in `.factory/claims.json`.
 
 ## Main workflow

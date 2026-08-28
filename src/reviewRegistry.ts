@@ -9,7 +9,8 @@ async function request(id: string, init?: RequestInit): Promise<RegistryResponse
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 8000);
   try {
-    const response = await fetch(`/api/review-links/${encodeURIComponent(id)}`, {
+    const bucket = Math.floor(Date.now() / 60000);
+    const response = await fetch(`/api/review-links/${bucket}/${encodeURIComponent(id)}`, {
       ...init,
       headers: { 'content-type': 'application/json', ...init?.headers },
       signal: controller.signal

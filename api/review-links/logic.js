@@ -23,9 +23,14 @@ function json(status, body, extraHeaders = {}) {
   };
 }
 
-function existingEntity(value) {
-  if (Array.isArray(value)) return value[0];
+function existingEntity(value, id) {
+  if (Array.isArray(value)) return value.find((entity) => entity.RowKey === id || entity.rowKey === id);
   return value || undefined;
+}
+
+function hasRevocation(value, id) {
+  if (!Array.isArray(value)) return false;
+  return value.some((entity) => entity.RowKey === `${id}:revoked` || entity.rowKey === `${id}:revoked`);
 }
 
 function sameHash(a, b) {
@@ -37,11 +42,12 @@ function sameHash(a, b) {
 function handleReviewLink(req, stored, now = Date.now()) {
   const id = String(req.params?.id || '');
   if (!ID.test(id)) return { response: json(400, { message: 'The review-link ID is invalid.' }) };
-  const entity = existingEntity(stored);
+  const entity = existingEntity(stored, id);
+  const revoked = hasRevocation(stored, id);
 
   if (String(req.method).toUpperCase() === 'GET') {
     if (!entity) return { response: json(404, { message: 'This review link is not registered.' }) };
-    const state = entity.revokedAt ? 'revoked' : now > Date.parse(entity.expiresAt) ? 'expired' : 'active';
+    const state = revoked ? 'revoked' : now > Date.parse(entity.expiresAt) ? 'expired' : 'active';
     return { response: json(200, { state }) };
   }
 
@@ -63,10 +69,8 @@ function handleReviewLink(req, stored, now = Date.now()) {
     if (!OWNER_KEY.test(String(body.ownerKey || '')) || !sameHash(hash(body.ownerKey), entity.ownerKeyHash)) {
       return { response: json(403, { message: 'This device cannot block that review link.' }) };
     }
-    return {
-      response: json(200, { state: 'revoked' }),
-      entity: { ...entity, PartitionKey: 'links', RowKey: id, revokedAt: new Date(now).toISOString() }
-    };
+    if (revoked) return { response: json(200, { state: 'revoked' }) };
+    return { response: json(200, { state: 'revoked' }), entity: { PartitionKey: 'links', RowKey: `${id}:revoked`, revokedAt: new Date(now).toISOString() } };
   }
 
   return { response: json(400, { message: 'The review-link action is invalid.' }) };

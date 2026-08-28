@@ -20,7 +20,8 @@ test('registry stores no quote contents and supports authorized cross-device rev
 
   const revoked = handleReviewLink({ method: 'POST', params: { id }, body: { action: 'revoke', ownerKey } }, created.entity, now);
   assert.equal(revoked.response.status, 200);
-  assert.equal(handleReviewLink({ method: 'GET', params: { id } }, revoked.entity, now).response.body, '{"state":"revoked"}');
+  assert.equal(handleReviewLink({ method: 'GET', params: { id } }, [created.entity, revoked.entity], now).response.body, '{"state":"revoked"}');
+  assert.equal(handleReviewLink({ method: 'POST', params: { id }, body: { action: 'revoke', ownerKey } }, [created.entity, revoked.entity], now).entity, undefined);
 });
 
 test('registry reports expiry and rejects excessive lifetimes', () => {
@@ -30,17 +31,29 @@ test('registry reports expiry and rejects excessive lifetimes', () => {
   assert.equal(tooLong.response.status, 400);
 });
 
+test('registry selects the requested row when the table binding returns a partition array', () => {
+  const other = { RowKey: '1f46c7d2-92cc-4e68-8e3a-6a211a228d51', expiresAt: new Date(now + 86400000).toISOString(), revokedAt: '' };
+  const requested = { RowKey: id, expiresAt: new Date(now + 86400000).toISOString(), ownerKeyHash: '0'.repeat(64) };
+  const tombstone = { RowKey: `${id}:revoked`, revokedAt: new Date(now).toISOString() };
+  assert.equal(handleReviewLink({ method: 'GET', params: { id } }, [other, requested, tombstone], now).response.body, '{"state":"revoked"}');
+  const absentId = '2f46c7d2-92cc-4e68-8e3a-6a211a228d52';
+  assert.equal(handleReviewLink({ method: 'GET', params: { id: absentId } }, [other, requested], now).response.status, 404);
+});
+
 test('write requests return 429 with Retry-After after the per-minute limit', async () => {
   const endpoint = require('./index');
+  const bucket = String(Math.floor(Date.now() / 60000));
+  const rateRows = [];
   let last;
   for (let count = 0; count < 31; count += 1) {
-    const context = { bindings: { storedLink: undefined }, res: undefined };
+    const context = { bindings: { storedLink: undefined, rateRows }, res: undefined };
     await endpoint(context, {
       method: 'POST',
-      params: { id },
-      headers: { 'x-forwarded-for': '203.0.113.9' },
+      params: { id, bucket },
+      headers: { 'x-forwarded-for': `203.0.113.9:${4000 + count}` },
       body: { action: 'create', expiresAt: new Date(Date.now() + 86400000).toISOString(), ownerKey }
     });
+    if (context.bindings.savedRate) rateRows.push(context.bindings.savedRate);
     last = context.res;
   }
   assert.equal(last.status, 429);

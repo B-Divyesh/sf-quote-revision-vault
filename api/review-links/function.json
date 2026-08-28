@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "req",
       "methods": ["get", "post"],
-      "route": "review-links/{id}"
+      "route": "review-links/{bucket}/{id}"
     },
     {
       "type": "http",
@@ -19,17 +19,29 @@
       "name": "storedLink",
       "tableName": "QuoteReviewLinks",
       "partitionKey": "links",
-      "rowKey": "{id}",
-      "connection": "AzureWebJobsStorage"
+      "connection": "QRV_STORAGE"
     },
     {
       "type": "table",
       "direction": "out",
       "name": "savedLink",
       "tableName": "QuoteReviewLinks",
-      "partitionKey": "links",
-      "rowKey": "{id}",
-      "connection": "AzureWebJobsStorage"
+      "connection": "QRV_STORAGE"
+    },
+    {
+      "type": "table",
+      "direction": "in",
+      "name": "rateRows",
+      "tableName": "QuoteReviewRate",
+      "partitionKey": "{bucket}",
+      "connection": "QRV_STORAGE"
+    },
+    {
+      "type": "table",
+      "direction": "out",
+      "name": "savedRate",
+      "tableName": "QuoteReviewRate",
+      "connection": "QRV_STORAGE"
     }
   ]
 }

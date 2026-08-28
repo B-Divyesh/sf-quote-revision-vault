@@ -94,7 +94,7 @@ test('@claim:review-link creates an expiring review link and revokes it for fres
   const packet = JSON.parse(Buffer.from(packetParam.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString());
   const expiringId = crypto.randomUUID();
   const expiringAt = new Date(Date.now() + 100).toISOString();
-  await page.request.post(`/api/review-links/${expiringId}`, { data: { action: 'create', expiresAt: expiringAt, ownerKey: 'e'.repeat(43) } });
+  await page.request.post(`/api/review-links/${Math.floor(Date.now() / 60000)}/${expiringId}`, { data: { action: 'create', expiresAt: expiringAt, ownerKey: 'e'.repeat(43) } });
   packet.shareId = expiringId; packet.expiresAt = expiringAt;
   const expiringPacket = Buffer.from(JSON.stringify(packet)).toString('base64url');
   await page.waitForTimeout(150);

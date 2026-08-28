@@ -7,7 +7,7 @@ function reviewLinkPreviewApi() {
     name: 'review-link-preview-api',
     configurePreviewServer(server: { middlewares: { use: (handler: (req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse, next: () => void) => void) => void } }) {
       server.middlewares.use((req, res, next) => {
-        const match = req.url?.match(/^\/api\/review-links\/([0-9a-f-]+)$/i);
+        const match = req.url?.match(/^\/api\/review-links\/\d+\/([0-9a-f-]+)$/i);
         if (!match) { next(); return; }
         const id = match[1];
         const reply = (status: number, value: unknown) => { res.statusCode = status; res.setHeader('content-type', 'application/json'); res.setHeader('cache-control', 'no-store'); res.end(JSON.stringify(value)); };
