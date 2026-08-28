@@ -1,0 +1,23 @@
+{
+  "slug": "quote-revision-vault",
+  "title": "Quote Revision Vault",
+  "summary": "Revise quotes without losing earlier prices, scope, or customer-ready receipts.",
+  "territory": "utilities",
+  "user": "A solo service provider who needs to revise a quote without losing what was previously offered or accidentally billing against the wrong version.",
+  "evidence": [
+    {"url": "https://github.com/invoiceninja/invoiceninja/issues/11509", "date": "2025-12-20", "quote_or_summary": "An Invoice Ninja user explicitly asks for a revision on every save after overwriting something by mistake, with rollback depth."},
+    {"url": "https://news.ycombinator.com/item?id=10235089", "date": "2015-09-17", "quote_or_summary": "A freelancer says the only desired functions were simple quoting, invoicing, and recurring invoices—evidence that a small, focused workflow is preferable to a suite."}
+  ],
+  "recurrence": "Two independent freelancer/invoicing contexts; accidental changes are high-severity because the sent price and scope become difficult to prove.",
+  "current_workaround": "Duplicate a PDF, rename files with v2/v3, or trust a suite's generic audit log and manually compare PDFs.",
+  "incumbents_and_gap": "Invoice Ninja, QuickBooks, and Xero create quotes but make a compact before/after scope-and-price comparison and customer-facing version receipt secondary or absent.",
+  "smallest_useful_product": "Offline-first quote editor that stores immutable revisions, renders a line-item diff, and exports one PDF plus a customer-acknowledgement link. Non-goals: payments, bookkeeping, e-signature legality, or a CRM.",
+  "success_measure": "In a 30-day pilot, 70% of users who revise a quote send the generated diff, and at least one avoids a scope/price clarification email.",
+  "artifact_class": "pwa-offline",
+  "monetization": "one-time — quote history is durable local business data and should keep working without a recurring bill.",
+  "constraints": "Keep quote/customer data local by default; link tokens must be revocable and expiry-controlled; do not represent acknowledgement as a legally binding signature.",
+  "est_build_effort": "S",
+  "why_distinct": "The primary artifact is an intelligible revision trail, not a full invoicing product.",
+  "confidence": 4,
+  "state": "RESEARCHED"
+}
