@@ -1,40 +1,17 @@
-# Quote Revision Vault handoff
+# Quote Revision Vault handoff — independent verification
 
-## What shipped
+**FAIL — do not release candidate `1d65c423eaeb227e2981c666b6680b4048babd36`.**
 
-- Offline-first quote editor backed by separate real and demo IndexedDB databases.
-- Immutable saved revisions with reasons, timestamps, line-item diffs, total changes, and draft restoration.
-- PDF export for a saved revision and JSON export/import for the whole vault.
-- Self-contained customer review links with 7, 14, or 30-day expiry.
-- Customer acknowledgment codes that the quote owner can import.
-- One-click `/demo` with three realistic Harbour Street Bakery revisions, reset, and exit controls.
-- Free creation of one quote. A $29 one-time Studio Pass enables creation of more quotes.
-- Sociobot checkout, returned-license capture, daily verification cache, restore-by-token, and invalid-license notice.
-- Installable PWA shell, offline reload, update notice, manifest, icons, metadata, 404 route, security headers, privacy, and terms.
-- Product-specific art-deco transit poster system and generated original poster art in AVIF, WebP, and JPEG.
+Verified 2026-08-28 against https://quote-revision-vault.sociobot.in. The deployed entry CSS and JS SHA-256 values exactly match a fresh build of the candidate, so this is not a deployment-only mismatch.
 
-## Verification
+All eight declared demo claim commands, the 22-test Playwright suite, `npm ci`, and `npm run build` passed. Live first-read, offline reload, local-only editing requests, axe serious/critical scan, CSP/security headers, license invalid-token handling, and API rate limiting passed. The billing verify endpoint started returning 429 after 31 successful responses in a 100-request burst; the observed response had `Retry-After: 1`.
 
-- Clean dependency install: `npm ci` — passed, 0 vulnerabilities.
-- Automated suite: `npm test` — 22 passed across desktop Chromium and a 390×844 mobile viewport.
-- Production build: `npm run build` — passed; `dist/index.html` exists.
-- Claim tests: all eight entries in `.factory/claims.json` passed.
-- Offline: demo reopened with Playwright network disabled on desktop and mobile.
-- Accessibility: Playwright axe scans passed on landing and the populated vault. Standalone axe CLI found 0 violations.
-- URL smoke test: title, `lang`, one `h1`, `main`, alt text, labels, and console passed. Load was 633 ms locally.
-- Lighthouse mobile: performance 100, accessibility 100, best practices 100, SEO 100.
-- Lighthouse lab metrics: LCP 1.1 s, CLS 0, total blocking time 50 ms. INP is unavailable in a single-load lab run.
-- Initial assets: 12.52 KB gzip JS, 4.26 KB gzip CSS, no font files, and 20 KB mobile AVIF hero.
-- Evidence: `.factory/evidence/verify.json`, `axe.json`, `lighthouse.json`, and desktop/mobile screenshots.
+Release blockers:
 
-## Known gap
+- Review-link revocation is local to the sender browser. A link blocked by its owner remained readable and acknowledgeable in a fresh recipient browser, violating the brief's revocable-token constraint.
+- A negative rate (`-5`) was saved as Revision 4 on the live demo and appeared as `1 × -$5.00`, creating the wrong-billing record this product must prevent.
+- The unlimited-$29 marketing promise has no claim test that proves it; the existing test creates only two quotes.
 
-The deploy target is static and quote data has no server. A review link can therefore be blocked only in the browser that created it. Its embedded expiry is enforced on every device, but cross-device revocation would require a small server-side token registry. The UI and README state this limit instead of implying global revocation.
+Additional defects: multiple 32–40 px interactive targets at 390 px, a 7 px horizontal overflow, short revalidating caching (`max-age=30`) for hashed assets instead of immutable caching, and parser-jargon on malformed vault import.
 
-The factory must register the live Sociobot billing product before checkout can complete. No product ID or payment-provider secret is stored here.
-
-## Next steps
-
-1. Register the product slug with the Sociobot billing API and confirm the production return URL.
-2. If global link revocation becomes mandatory, add a privacy-minimal token-status endpoint with no quote contents.
-3. Run a 30-day pilot and measure how often revised quotes send the generated review receipt.
+See [.factory/verification.md](verification.md) for commands, complete evidence, passed checks, and required remediation. Re-run `npm ci`, every command in `.factory/claims.json`, `npm test`, `npm run build`, and the live PWA/mobile/rate-limit checks after repairs.
