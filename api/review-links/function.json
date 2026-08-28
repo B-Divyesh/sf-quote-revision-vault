@@ -1,0 +1,35 @@
+{
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": ["get", "post"],
+      "route": "review-links/{id}"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    },
+    {
+      "type": "table",
+      "direction": "in",
+      "name": "storedLink",
+      "tableName": "QuoteReviewLinks",
+      "partitionKey": "links",
+      "rowKey": "{id}",
+      "connection": "AzureWebJobsStorage"
+    },
+    {
+      "type": "table",
+      "direction": "out",
+      "name": "savedLink",
+      "tableName": "QuoteReviewLinks",
+      "partitionKey": "links",
+      "rowKey": "{id}",
+      "connection": "AzureWebJobsStorage"
+    }
+  ]
+}

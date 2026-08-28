@@ -1,5 +1,10 @@
 {
-  "navigationFallback": {"rewrite": "/index.html", "exclude": ["/assets/*", "/icons/*", "/*.{svg,png,jpg,jpeg,webp,avif,xml,txt,webmanifest,js,css}"]},
+  "routes": [
+    {"route": "/assets/*", "headers": {"Cache-Control": "public, max-age=31536000, immutable"}},
+    {"route": "/sw.js", "headers": {"Cache-Control": "no-cache, no-store, must-revalidate"}},
+    {"route": "/api/review-links/*", "allowedMethods": ["GET", "POST"]}
+  ],
+  "navigationFallback": {"rewrite": "/index.html", "exclude": ["/api/*", "/assets/*", "/icons/*", "/*.{svg,png,jpg,jpeg,webp,avif,xml,txt,webmanifest,js,css}"]},
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "strict-origin-when-cross-origin",

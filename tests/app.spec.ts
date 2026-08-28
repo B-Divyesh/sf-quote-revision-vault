@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 import AxeBuilder from '@axe-core/playwright';
 
 test('landing page explains the job and has no serious accessibility errors', async ({ page }) => {
@@ -72,34 +73,63 @@ test('@claim:vault-export downloads all local quote history as JSON', async ({ p
   expect(data.quotes[0].revisions).toHaveLength(3);
 });
 
-test('@claim:review-link creates an expiring review link and imports its acknowledgment', async ({ page }) => {
+test('@claim:review-link creates an expiring review link and revokes it for fresh recipients', async ({ page, browser }) => {
   await page.goto('/demo');
   await page.locator('#share-days').selectOption('7');
   await page.getByRole('button', { name: 'Create review link' }).click();
   const output = page.locator('#share-output');
   await expect(output).toContainText('/ack#packet=');
   const text = await output.locator('span').innerText();
-  await page.goto(text);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Review this saved quote');
-  await expect(page.getByText('Harbour Street identity refresh')).toBeVisible();
-  await expect(page.getByText('Review link expires:', { exact: false })).toBeVisible();
-  await page.locator('#ack-name').fill('Mara Chen');
-  await page.getByRole('button', { name: 'Create acknowledgment code' }).click();
-  const receipt = await page.locator('#receipt-result').inputValue();
+  const recipient = await browser.newContext();
+  const recipientPage = await recipient.newPage();
+  await recipientPage.goto(text);
+  await expect(recipientPage.getByRole('heading', { level: 1 })).toHaveText('Review this saved quote');
+  await expect(recipientPage.getByText('Harbour Street identity refresh')).toBeVisible();
+  await expect(recipientPage.getByText('Review link expires:', { exact: false })).toBeVisible();
+  await recipientPage.locator('#ack-name').fill('Mara Chen');
+  await recipientPage.getByRole('button', { name: 'Create acknowledgment code' }).click();
+  const receipt = await recipientPage.locator('#receipt-result').inputValue();
   expect(receipt.length).toBeGreaterThan(40);
-  const currentTime = Date.now();
-  await page.clock.setFixedTime(currentTime + 8 * 86400000);
-  await page.goto(text);
-  await expect(page.getByText('This link is expired.')).toBeVisible();
-  await page.clock.setFixedTime(currentTime);
+  const packetParam = new URL(text).hash.slice('#packet='.length);
+  const packet = JSON.parse(Buffer.from(packetParam.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString());
+  const expiringId = crypto.randomUUID();
+  const expiringAt = new Date(Date.now() + 100).toISOString();
+  await page.request.post(`/api/review-links/${expiringId}`, { data: { action: 'create', expiresAt: expiringAt, ownerKey: 'e'.repeat(43) } });
+  packet.shareId = expiringId; packet.expiresAt = expiringAt;
+  const expiringPacket = Buffer.from(JSON.stringify(packet)).toString('base64url');
+  await page.waitForTimeout(150);
+  await recipientPage.goto(`/ack#packet=${expiringPacket}`);
+  await expect(recipientPage.getByRole('heading', { level: 1 })).toHaveText('This review link is expired');
+  await expect(recipientPage.getByText('Harbour Street identity refresh')).toHaveCount(0);
   await page.goto('/demo');
   await page.getByRole('button', { name: 'Import acknowledgment code' }).click();
   await page.locator('#receipt-code').fill(receipt);
   await page.getByRole('button', { name: 'Import code' }).click();
   await expect(page.getByText('1 acknowledgment imported.')).toBeVisible();
-  await page.getByRole('button', { name: 'Block link here' }).click();
-  await page.goto(text);
-  await expect(page.getByText('This link is revoked.')).toBeVisible();
+  await page.getByRole('button', { name: 'Block review link' }).click();
+  await expect(page.locator('#vault-status')).toHaveText('The review link is blocked on every device.');
+  await recipientPage.goto(text);
+  await expect(recipientPage.getByRole('heading', { level: 1 })).toHaveText('This review link is revoked');
+  await expect(recipientPage.getByText('Harbour Street identity refresh')).toHaveCount(0);
+  const freshRecipient = await browser.newContext();
+  const freshPage = await freshRecipient.newPage();
+  await freshPage.goto(text);
+  await expect(freshPage.getByRole('heading', { level: 1 })).toHaveText('This review link is revoked');
+  await expect(freshPage.getByText('Harbour Street identity refresh')).toHaveCount(0);
+  await expect(freshPage.locator('#ack-form')).toHaveCount(0);
+  await recipient.close();
+  await freshRecipient.close();
+});
+
+test('review links fail closed when their live status cannot be checked', async ({ page }) => {
+  await page.goto('/demo');
+  await page.getByRole('button', { name: 'Create review link' }).click();
+  const url = await page.locator('#share-output span').innerText();
+  await page.route('**/api/review-links/**', (route) => route.fulfill({ status: 503, contentType: 'application/json', body: '{"message":"offline"}' }));
+  await page.goto(url);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('This quote cannot be shown yet');
+  await expect(page.getByText('Harbour Street identity refresh')).toHaveCount(0);
+  await expect(page.locator('#ack-form')).toHaveCount(0);
 });
 
 test('@claim:demo-isolation keeps sample changes outside the real vault', async ({ page }) => {
@@ -120,6 +150,18 @@ test('@claim:local-privacy sends no quote data to another origin', async ({ page
   await page.locator('#revision-reason').fill('Changed note');
   await page.getByRole('button', { name: 'Save new revision' }).click();
   expect(outside).toEqual([]);
+});
+
+test('@claim:no-tracking-sync loads no tracking or automatic cloud sync', async ({ page }) => {
+  const requests: string[] = [];
+  page.on('request', (request) => requests.push(request.url()));
+  await page.goto('/demo');
+  await page.locator('#notes').fill('Changed locally');
+  await page.locator('#revision-reason').fill('Local-only change');
+  await page.getByRole('button', { name: 'Save new revision' }).click();
+  expect(requests.every((url) => new URL(url).origin === 'http://127.0.0.1:4173')).toBe(true);
+  expect(requests.some((url) => /analytics|tracking|doubleclick|fonts\.(googleapis|gstatic)/i.test(url))).toBe(false);
+  await expect(page.locator('input[type="email"], input[type="password"]')).toHaveCount(0);
 });
 
 test('@claim:offline-reload opens the demo without a network after first visit', async ({ page, context }) => {
@@ -156,4 +198,70 @@ test('@claim:paid-license unlocks creation of more than one real quote', async (
   await expect(page.locator('.quote-list li')).toHaveCount(1);
   await page.locator('#new-quote').click();
   await expect(page.locator('.quote-list li')).toHaveCount(2);
+});
+
+test('@claim:free-one-quote allows one real quote and asks for a license before the second', async ({ page }) => {
+  await page.goto('/vault');
+  await page.locator('#empty-new').click();
+  await expect(page.locator('.quote-list li')).toHaveCount(1);
+  await page.locator('#new-quote').click();
+  await expect(page.getByRole('dialog', { name: 'Use your Studio Pass' })).toBeVisible();
+  await expect(page.locator('.quote-list li')).toHaveCount(1);
+});
+
+test('rejects negative, blank, non-finite, and excessive line values without changing history', async ({ page }) => {
+  await page.goto('/demo');
+  const save = page.getByRole('button', { name: 'Save new revision' });
+  await page.locator('#revision-reason').fill('Amount boundary check');
+
+  await page.locator('#rate-0').fill('-5');
+  await save.click();
+  await expect(page.locator('#vault-status')).toHaveText('The revision was not saved. Correct the marked amount.');
+  await expect(page.locator('#rate-0')).toHaveValue('-5');
+  await expect(page.getByText('Revision 4', { exact: true })).toHaveCount(0);
+  await expect(page.locator('#rate-error-0')).toContainText('Rate must be from 0');
+
+  await page.locator('#rate-0').fill('850');
+  await page.locator('#qty-0').fill('');
+  await save.click();
+  await expect(page.locator('#qty-error-0')).toHaveText('Enter a quantity.');
+  await expect(page.getByText('Revision 4', { exact: true })).toHaveCount(0);
+
+  await page.locator('#qty-0').evaluate((input: HTMLInputElement) => { input.value = '1e999'; input.dispatchEvent(new Event('input', { bubbles: true })); });
+  await save.click();
+  await expect(page.locator('#qty-0')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.getByText('Revision 4', { exact: true })).toHaveCount(0);
+
+  await page.locator('#qty-0').fill('1');
+  await page.locator('#rate-0').fill('1000000001');
+  await save.click();
+  await expect(page.locator('#rate-error-0')).toContainText('1,000,000,000');
+  await expect(page.getByText('Revision 4', { exact: true })).toHaveCount(0);
+});
+
+test('malformed backups get stable plain-language feedback', async ({ page }) => {
+  await page.goto('/demo');
+  await page.locator('#import-vault').setInputFiles({ name: 'broken.json', mimeType: 'application/json', buffer: Buffer.from('{bad') });
+  await expect(page.locator('#vault-status')).toHaveText('This file is not a Quote Revision Vault backup. Choose an exported vault JSON file.');
+  await expect(page.locator('#vault-status')).not.toContainText('position');
+});
+
+test('390px controls meet touch size and the page has no horizontal overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/demo');
+  for (const selector of ['#reset-demo', '#start-real', '#export-pdf', '#delete-quote', '#add-item', '#restore-revision', '#create-share', '#import-receipt']) {
+    const box = await page.locator(selector).boundingBox();
+    expect(box, selector).not.toBeNull();
+    expect(box!.height, selector).toBeGreaterThanOrEqual(44);
+  }
+  const sizes = await page.evaluate(() => ({ viewport: innerWidth, document: document.documentElement.scrollWidth }));
+  expect(sizes.document).toBeLessThanOrEqual(sizes.viewport);
+});
+
+test('static response policy gives hashed assets immutable caching', async () => {
+  const config = JSON.parse(await readFile('public/staticwebapp.config.json', 'utf8'));
+  const assets = config.routes.find((route: { route: string }) => route.route === '/assets/*');
+  expect(assets.headers['Cache-Control']).toBe('public, max-age=31536000, immutable');
+  const worker = config.routes.find((route: { route: string }) => route.route === '/sw.js');
+  expect(worker.headers['Cache-Control']).toContain('no-store');
 });

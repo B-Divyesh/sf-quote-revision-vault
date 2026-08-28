@@ -1,4 +1,4 @@
-const CACHE = 'qrv-shell-v6';
+const CACHE = 'qrv-shell-v8';
 const APP_SHELL = '/app-shell';
 const STATIC_FILES = ['/offline.html', '/offline.css', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-180.png', '/assets/revision-route-480.avif', '/assets/revision-route-480.webp', '/assets/revision-route.avif', '/assets/revision-route.webp', '/assets/revision-route.jpg'];
 
@@ -43,6 +43,7 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (url.origin !== location.origin) return;
+  if (url.pathname.startsWith('/api/')) return;
   if (request.mode === 'navigate') {
     event.respondWith(fetch(request).then((response) => {
       const copy = response.clone();

@@ -12,7 +12,7 @@ Audited 2026-08-28 against the plain-words rules. Counts treat prices and hyphen
 | See three saved revisions and their price changes. | 8 | Action result |
 | Quote data stays here until you share it | 8 | Fact |
 | Works offline after your first visit | 6 | Fact |
-| Free for one quote · $29 once for more | 9 | Fact |
+| Free for one quote · $29 once for multiple quotes | 10 | Fact |
 | Live revision preview | 3 | Eyebrow |
 | See the exact change | 4 | Heading |
 | Initial quote · $4,510 | 3 | Revision detail |
@@ -35,8 +35,8 @@ Audited 2026-08-28 against the plain-words rules. Counts treat prices and hyphen
 | No cloud account or automatic sync. | 6 | Boundary |
 | One-time Studio Pass | 3 | Eyebrow |
 | Create more than one quote | 5 | Heading |
-| Pay $29 once to create unlimited quotes. | 7 | Price |
-| One quote, every revision, PDF export, and backups stay free. | 10 | Free tier |
+| Pay $29 once to create multiple quotes. | 7 | Price |
+| One quote, revision history, PDF export, and backups stay free. | 9 | Free tier |
 | Buy at Sociobot checkout | 4 | Purchase action |
 | Paste a license | 3 | Restore action |
 | Keep the quote you sent and the change you made. | 10 | Footer |

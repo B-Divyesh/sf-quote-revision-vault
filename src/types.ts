@@ -28,6 +28,7 @@ export interface ShareLink {
   revisionId: string;
   createdAt: string;
   expiresAt: string;
+  ownerKey?: string;
   revokedAt?: string;
 }
 
@@ -49,7 +50,7 @@ export interface Quote extends QuoteSnapshot {
 }
 
 export interface SharePacket {
-  version: 1;
+  version: 2;
   shareId: string;
   quoteId: string;
   revisionId: string;
