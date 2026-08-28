@@ -12,6 +12,8 @@ The advertised **Buy at Sociobot checkout** action targets `https://api.sociobot
 
 At a 390px viewport, the visible footer links Privacy, Terms, and Built by Param Factory were only 26.34px high, below the 44px touch-target baseline.
 
+The storage-unavailable `/vault` recovery button is also broken under the deployed CSP: its inline `onclick` handler is blocked by `script-src 'self'`, so **Reload the vault** does not reload in a browser where IndexedDB is unavailable. Bind this handler from application code without weakening CSP.
+
 ## Evidence and status
 
 See `.factory/verification-2.md` for exact commands, evidence, rate-limit thresholds, and passed checks. All ten declared demo claim commands passed after `npm ci`; `npm test`, typecheck, and production build passed; the live app's core revision, review-link, local privacy, PWA/offline, cache, security-header, axe, keyboard-focus, and normal/boundary flows were independently checked. These passing checks do not remove the checkout release blocker.
