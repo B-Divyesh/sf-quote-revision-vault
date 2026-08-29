@@ -1,10 +1,10 @@
 # Quote Revision Vault
 
-Quote Revision Vault is an offline-first quote editor for solo service providers. It keeps each saved revision and compares line-item changes before billing.
+Quote Revision Vault is a quote editor for solo service providers. It works without an internet connection after the first visit. Save every quote version, compare line-item changes, export a PDF, and send a customer review link.
 
-Quotes stay in IndexedDB until you export a vault file or copy a review link. The app works offline after the first visit. The free vault creates one quote with revision history.
+Quotes stay in this browser until you export a backup file or copy a review link. The free vault creates one quote with its revision history.
 
-Try the isolated sample at `/demo`. It uses a separate IndexedDB database and never copies changes into the real vault.
+Try the isolated sample at `/demo` or `/?demo=1`. It opens a separate sample workspace. Demo changes never enter your real vault.
 
 ## Run and verify
 
@@ -13,28 +13,31 @@ Requirements: Node.js 22 and npm.
 ```sh
 npm ci
 npm test
+npm run typecheck
 npm run build
 npm run preview
 ```
 
-The exact production build command is `npm run build`. Static output lands in `dist/`, with `dist/index.html` at its root.
-
-Production deployment includes the managed function in `api/`. Set the Static Web App setting `QRV_STORAGE` to an Azure Storage connection string and create the `QuoteReviewLinks` and `QuoteReviewRate` tables. The function stores only review-link status metadata and rate-limit counters.
-
-Playwright runs the product and claim tests in desktop Chromium and a 390px mobile viewport. Each claim and its verification command is listed in `.factory/claims.json`.
+The production build command is `npm run build`. It creates `dist/`, with `dist/index.html` at its root.
 
 ## Main workflow
 
 1. Open `/vault` and create a quote.
 2. Add the client, line items, scope, and revision reason.
 3. Save a revision, then compare any two revisions.
-4. Export the saved revision as PDF or create a dated review link.
+4. Export a saved revision as a PDF or create a dated review link.
 5. Export a JSON vault file for backup or device transfer.
 
-The customer can return an acknowledgment code. This records review only and is not a legal signature. The owner can block a link on every device. Every link checks a same-origin status registry before showing the quote.
+A customer can return an acknowledgment code. This records review only. It is not a legal signature. The owner can block a review link on every device. Before showing a quote, the app checks whether that link is active.
 
-## Privacy and payment
+## Privacy and licenses
 
-There are no analytics, ads, remote fonts, or runtime CDNs. The review-link registry stores only a random ID, expiry, secret hash, and revocation time. It never receives quote contents. License verification sends only a pasted Studio Pass token to Sociobot. Studio Pass sales remain hidden until the factory billing catalog has a live product entry; no payment provider is embedded here.
+The app does not load analytics, ads, remote fonts, tracking scripts, or automatic cloud sync. The review-link service receives no quote contents. It keeps only what it needs to tell whether a link is active: a random ID, expiry date, protected owner key, and block time.
+
+License verification sends only a pasted Studio Pass token to Sociobot. People with a current Studio Pass can paste it to create more than one quote. No payment form is embedded in this app.
 
 See `/privacy` and `/terms` in the app. The code is MIT licensed.
+
+## Deployment details
+
+The static site deploys from `dist/`. The `api/` function keeps review-link status and rate-limit counts. To deploy it, set `QRV_STORAGE` to an Azure Storage connection string and create the `QuoteReviewLinks` and `QuoteReviewRate` tables.

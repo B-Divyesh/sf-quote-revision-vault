@@ -6,7 +6,7 @@ test('landing page explains the job and has no serious accessibility errors', as
   const errors: string[] = [];
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Revise quotes without losing the past');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Revise quotes without losing earlier prices or scope');
   await expect(page.getByRole('link', { name: 'Try it with sample data' })).toBeVisible();
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(results.violations.filter((violation) => ['serious','critical'].includes(violation.impact || ''))).toEqual([]);
@@ -26,13 +26,34 @@ test('vault supports keyboard use, clear errors, and accessible landmarks', asyn
   expect(results.violations.filter((violation) => ['serious','critical'].includes(violation.impact || ''))).toEqual([]);
 });
 
-test('legal and missing routes set distinct titles and keep one page heading', async ({ page }) => {
-  for (const [path, title] of [['/privacy', 'Privacy — Quote Revision Vault'], ['/terms', 'Terms — Quote Revision Vault'], ['/missing-stop', 'Page not found — Quote Revision Vault']]) {
+test('every route sets its own canonical and social metadata', async ({ page }) => {
+  const routes = [
+    ['/', 'Quote Revision Vault — Revise quotes safely'],
+    ['/demo', 'Demo — Quote Revision Vault'],
+    ['/vault', 'Vault — Quote Revision Vault'],
+    ['/privacy', 'Privacy — Quote Revision Vault'],
+    ['/terms', 'Terms — Quote Revision Vault']
+  ];
+  for (const [path, title] of routes) {
     await page.goto(path);
     await expect(page).toHaveTitle(title);
+    const expectedCanonical = `https://quote-revision-vault.sociobot.in${path}`;
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', expectedCanonical);
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', title);
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', expectedCanonical);
+    await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', title);
     await expect(page.locator('main')).toHaveCount(1);
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
   }
+});
+
+test('unknown paths return a designed HTTP 404 with a home link', async ({ page, request }) => {
+  const response = await request.get('/missing-stop');
+  expect(response.status()).toBe(404);
+  await page.goto('/missing-stop');
+  await expect(page).toHaveTitle('Page not found — Quote Revision Vault');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('This page does not exist');
+  await expect(page.getByRole('link', { name: 'Return home' })).toHaveAttribute('href', '/');
 });
 
 test('@claim:revision-history keeps saved revisions and shows their changes', async ({ page }) => {
@@ -44,6 +65,10 @@ test('@claim:revision-history keeps saved revisions and shows their changes', as
   await expect(page.getByText('Revision 4', { exact: true })).toBeVisible();
   await expect(page.locator('#comparison')).toContainText('$850.00');
   await expect(page.locator('#comparison')).toContainText('$900.00');
+  await page.locator('#compare-from').selectOption('rev-sample-1');
+  await page.locator('#compare-to').selectOption('rev-sample-3');
+  await expect(page.locator('#comparison')).toContainText('$4,510.00');
+  await expect(page.locator('#comparison')).toContainText('$4,290.00');
 });
 
 test('@claim:pdf-export downloads the saved revision as a PDF', async ({ page }) => {
@@ -133,8 +158,15 @@ test('review links fail closed when their live status cannot be checked', async 
 });
 
 test('@claim:demo-isolation keeps sample changes outside the real vault', async ({ page }) => {
-  await page.goto('/demo');
+  await page.goto('/?demo=1');
+  await expect(page.getByLabel('Demo mode')).toContainText('Demo — sample data, nothing is saved');
+  await expect(page.getByRole('button', { name: 'Reset demo' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Start for real' })).toBeVisible();
   await page.locator('#quote-title').fill('Changed only in demo');
+  await page.locator('#revision-reason').fill('Demo-only title change');
+  await page.getByRole('button', { name: 'Save new revision' }).click();
+  await page.getByRole('button', { name: 'Reset demo' }).click();
+  await expect(page.locator('#quote-title')).toHaveValue('Harbour Street identity refresh');
   await page.goto('/vault');
   await expect(page.getByRole('heading', { name: 'Your first revision starts here' })).toBeVisible();
   await expect(page.getByText('Changed only in demo')).toHaveCount(0);
@@ -164,7 +196,7 @@ test('@claim:no-tracking-sync loads no tracking or automatic cloud sync', async 
   await expect(page.locator('input[type="email"], input[type="password"]')).toHaveCount(0);
 });
 
-test('@claim:offline-reload opens the demo without a network after first visit', async ({ page, context }) => {
+test('@claim:offline-reload saves and reloads a revision without a network after the first visit', async ({ page, context }) => {
   await page.goto('/demo');
   await expect(page.getByText('Revision 3', { exact: true })).toBeVisible();
   await page.waitForFunction(async () => {
@@ -184,11 +216,17 @@ test('@claim:offline-reload opens the demo without a network after first visit',
     }
   });
   await context.setOffline(true);
+  await page.locator('#rate-0').fill('901');
+  await page.locator('#revision-reason').fill('Offline rate correction');
+  await page.getByRole('button', { name: 'Save new revision' }).click();
+  await expect(page.getByText('Revision 4', { exact: true })).toBeVisible();
+  await expect(page.locator('#comparison')).toContainText('$901.00');
   await page.reload();
-  await expect(page.getByText('Revision 3', { exact: true })).toBeVisible();
+  await expect(page.getByText('Revision 4', { exact: true })).toBeVisible();
+  await expect(page.locator('#comparison')).toContainText('$901.00');
 });
 
-test('an existing valid Studio Pass unlocks creation of more than one real quote', async ({ page }) => {
+test('@claim:license-restore an existing valid Studio Pass unlocks creation of more than one real quote', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('sb_license:quote-revision-vault','test-token');
     localStorage.setItem('sb_license_verdict:quote-revision-vault',JSON.stringify({valid:true,reason:'ok',checkedAt:Date.now()}));
@@ -283,11 +321,11 @@ test('storage recovery reload is CSP-safe and works after storage becomes availa
   expect(consoleErrors.filter((message) => /Content Security Policy|inline event handler/i.test(message))).toEqual([]);
 });
 
-test('landing and terms do not expose an unavailable billing checkout', async ({ page }) => {
+test('landing and terms do not expose a payment checkout while no sale is offered', async ({ page }) => {
   for (const path of ['/', '/terms']) {
     await page.goto(path);
     await expect(page.locator('a[href*="api.sociobot.in/api/v1/products/quote-revision-vault/checkout"]')).toHaveCount(0);
-    await expect(page.getByText('Studio Pass sales are unavailable while the billing catalog is updated.')).toBeVisible();
+    await expect(page.getByText(/sales are unavailable/i)).toHaveCount(0);
   }
 });
 
@@ -297,4 +335,9 @@ test('static response policy gives hashed assets immutable caching', async () =>
   expect(assets.headers['Cache-Control']).toBe('public, max-age=31536000, immutable');
   const worker = config.routes.find((route: { route: string }) => route.route === '/sw.js');
   expect(worker.headers['Cache-Control']).toContain('no-store');
+  expect(config.navigationFallback).toBeUndefined();
+  expect(config.responseOverrides['404'].rewrite).toBe('/404.html');
+  for (const route of ['/demo', '/vault', '/privacy', '/terms', '/ack']) {
+    expect(config.routes.find((entry: { route: string }) => entry.route === route)?.rewrite).toBe('/index.html');
+  }
 });

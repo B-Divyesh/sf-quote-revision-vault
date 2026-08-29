@@ -1,0 +1,1 @@
+Revise client quotes without losing earlier prices, scope, or saved versions.

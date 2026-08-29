@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import { readFile } from 'node:fs/promises';
 
 const previewLinks = new Map<string, { expiresAt: string; ownerKey: string; revoked: boolean }>();
 
@@ -28,6 +29,17 @@ function reviewLinkPreviewApi() {
             reply(link ? 403 : 404, { message: 'The review-link request was rejected.' });
           } catch { reply(400, { message: 'The review-link request could not be read.' }); }
         });
+      });
+      server.middlewares.use((req, res, next) => {
+        const path = new URL(req.url || '/', 'http://localhost').pathname;
+        const appRoutes = new Set(['/', '/demo', '/vault', '/privacy', '/terms', '/ack']);
+        const hasExtension = /\/[^/]+\.[a-z0-9]+$/i.test(path);
+        if (req.method !== 'GET' || appRoutes.has(path) || path.startsWith('/api/') || hasExtension) { next(); return; }
+        void readFile('dist/404.html').then((html) => {
+          res.statusCode = 404;
+          res.setHeader('content-type', 'text/html; charset=utf-8');
+          res.end(html);
+        }).catch(next);
       });
     }
   };
