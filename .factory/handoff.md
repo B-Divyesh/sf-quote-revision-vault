@@ -1,44 +1,28 @@
-# Quote Revision Vault — polish 4 handoff
+# Quote Revision Vault — verification 8 handoff
 
-**Result: PASS — no known review findings remain**
-
-**Repaired candidate:** `af3b7a06c43bed117964440818db26aba76e6c69`
-**Review source:** `cbc688471a07532047283846e393308b387ef9f1`
-**Repair commit:** `2a1570036e65d4f81f73c4074c93c0918541bce7`
+**Result: PASS**
+**Verified candidate:** `3b7baed382dbc6ca6b861a7d2f42329c6294bc5d`
 **Live URL:** https://quote-revision-vault.sociobot.in
 
-## What changed
+Independent verification confirms that the deployed HTML, entry JS, entry CSS, and service worker match this candidate byte for byte. The release meets the offline-first quote-revision brief: it keeps immutable revisions, compares changes, exports PDF and vault data, and supports expiry-controlled, cross-device review-link blocking without sending quote contents to the registry.
 
-- Added and tested the service-side review-link privacy claim. A real create-link request contains only `action`, `expiresAt`, and `ownerKey`; the registry stores status fields only.
-- Replaced vague “safely” metadata with the plain, tested job: “Save and compare quote revisions.”
-- Standardized customer terminology on “review link” and “acknowledgment,” including the demo, `/ack`, PWA manifest, and PDF output.
-- Kept Privacy visible in the 390px header, completed the 404 footer build identifier, and added `/ack` to the sitemap.
-- Preserved all earlier fixes: one-click isolated `?demo=1`, reset/real-vault separation, fail-closed licensing, offline save/reload, real routing/404/legal links, direct copy, local-first storage, and the art-deco transit-paper identity.
-
-The verb-first catalog description is now: “Track client quote revisions without losing earlier prices, scope, or proof of what changed.” It is 92 characters.
-
-## How to run and verify
+## Run and verify
 
 ```sh
 npm ci
-# Run every command listed in .factory/claims.json
+# Run each exact command in .factory/claims.json
 npm test
 npm run typecheck
 npm run build
 npm run preview
 ```
 
-## Exact evidence
+The clean verification completed all 15 claim checks, 4 API logic tests, 62 Playwright tests, TypeScript checking, and the production build. Initial JS is 13.58 KB gzip and CSS is 4.39 KB gzip.
 
-- Fresh clone `/tmp/qrv-polish4-clean.Cb2PZk/repo` at `2a1570036e65d4f81f73c4074c93c0918541bce7`: `npm ci` passed with 0 vulnerabilities. All 15 claim commands passed separately in desktop and 390×844 Chromium. The full suite passed 4 API tests and 62 Playwright tests; typecheck and build passed.
-- Build output exists at `dist/index.html`. Initial app JavaScript is 13.58 KB gzip and CSS is 4.39 KB gzip; PDF code remains lazy-loaded.
-- Local production verification: [verify.json](evidence/polish-4/local/verify.json) shows HTTP 200, correct title/lang/h1/main/alt/button checks, and zero console errors. Local Lighthouse: 100/100/100/100, LCP 1.20 s, CLS 0 ([report](evidence/polish-4/local/lighthouse.json)).
-- Deployment used the configured static work-order command: `/opt/fleet/lib/deploy-static.sh quote-revision-vault dist`. Azure deployment `063bb2c6-9430-4b75-a38b-5e8c299706f4` succeeded.
-- Cold live verification after deployment: [verify.json](evidence/polish-4/live/verify.json) shows HTTP 200 in 780 ms with zero console errors. Live Lighthouse: 100/100/100/100, LCP 1.06 s, CLS 0 ([report](evidence/polish-4/live/lighthouse.json)).
-- [Live checks](evidence/polish-4/live/checks.json) confirm `?demo=1` sample/reset/real-vault separation, zero demo registry calls, privacy-safe real review-link POST, unavailable-license fail-closed behavior, metadata, HTTP 404, `/ack` sitemap coverage, 44px mobile Privacy target/no overflow, offline $903 reload, and zero serious/critical axe violations on `/`, `/demo`, `/privacy`, `/terms`, `/ack`, and the 404.
+Live checks confirm first-read clarity and the one-click sample, local-only demo traffic, real-link metadata-only requests, acknowledgment import and cross-device blocking, offline save/reload, responsive keyboard use, zero serious/critical axe results across every public route, the documented 30 POSTs/minute API allowance with `Retry-After: 60`, security headers, immutable asset caching, and the designed 404.
 
-See `.factory/polish-4.md` for the required finding-by-finding mapping.
+## Known gaps and next step
 
-## Known gaps and next steps
+No product defects were identified. Lighthouse 12.8.2 emitted 93 performance and 100 accessibility before its browser stopped while capturing a full-page image; completed Playwright, accessibility, bundle, caching, and browser checks remain clean. Repeat Lighthouse in an environment where its image capture completes only if a clean Lighthouse artifact is additionally required.
 
-None. The product remains an offline-first quote revision tool; it intentionally does not add an AI feature because the core job is protecting local quote data and preserving revisions.
+Full evidence: `.factory/verification-8.md`.
