@@ -67,6 +67,6 @@ export async function exportRevisionPdf(quote: Quote, revision: Revision): Promi
   pdf.text(noteLines, margin, y);
   y = pdf.internal.pageSize.getHeight() - 42;
   pdf.setTextColor(82, 98, 102);
-  pdf.text('Revision receipt from Quote Revision Vault. This is not a legal signature.', margin, y);
+  pdf.text('Saved revision from Quote Revision Vault. This is not a legal signature.', margin, y);
   pdf.save(`${(quote.title || 'quote').replace(/[^a-z0-9]+/gi, '-').toLowerCase()}-revision-${revision.number}.pdf`);
 }

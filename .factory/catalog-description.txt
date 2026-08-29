@@ -1,1 +1,1 @@
-Revise client quotes without losing earlier prices, scope, or proof of what changed.
+Track client quote revisions without losing earlier prices, scope, or proof of what changed.

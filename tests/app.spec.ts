@@ -1,6 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import AxeBuilder from '@axe-core/playwright';
+
+const require = createRequire(import.meta.url);
+const { handleReviewLink } = require('../api/review-links/logic.js') as {
+  handleReviewLink: (request: { method: string; params: { id: string }; body: Record<string, unknown> }, stored?: unknown, now?: number) => { response: { status: number }; entity?: Record<string, unknown> };
+};
 
 async function createSavedRealQuote(page: import('@playwright/test').Page) {
   await page.goto('/vault');
@@ -76,11 +82,12 @@ test('check cold demo repeatedly starts with skip link, wordmark, and navigation
 
 test('every route sets its own canonical and social metadata', async ({ page }) => {
   const routes = [
-    ['/', 'Quote Revision Vault — Revise quotes safely'],
+    ['/', 'Quote Revision Vault — Save and compare quote revisions'],
     ['/demo', 'Demo — Quote Revision Vault'],
     ['/vault', 'Vault — Quote Revision Vault'],
     ['/privacy', 'Privacy — Quote Revision Vault'],
-    ['/terms', 'Terms — Quote Revision Vault']
+    ['/terms', 'Terms — Quote Revision Vault'],
+    ['/ack', 'Review a quote — Quote Revision Vault']
   ];
   for (const [path, title] of routes) {
     await page.goto(path);
@@ -96,6 +103,8 @@ test('every route sets its own canonical and social metadata', async ({ page }) 
 });
 
 test('unknown paths return a designed HTTP 404 with a home link', async ({ page, request }) => {
+  await page.goto('/');
+  const appBuild = await page.locator('.build-id').innerText();
   const response = await request.get('/missing-stop');
   expect(response.status()).toBe(404);
   await page.goto('/missing-stop');
@@ -103,9 +112,44 @@ test('unknown paths return a designed HTTP 404 with a home link', async ({ page,
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('This page does not exist');
   await expect(page.getByRole('link', { name: 'Return home' })).toHaveAttribute('href', '/');
   await expect(page.locator('footer')).toContainText('Save and compare quote revisions in this browser.');
+  await expect(page.locator('footer .build-id')).toHaveText(appBuild);
   await expect(page.getByRole('link', { name: 'Built by Param Factory (external)' })).toHaveAttribute('href', 'https://hello-factory.sociobot.in');
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quote-revision-vault.sociobot.in/404.html');
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Page not found — Quote Revision Vault');
+});
+
+test('uses review link and acknowledgment terminology in the app and installed metadata', async ({ page, request }) => {
+  await page.goto('/demo');
+  await expect(page.getByRole('heading', { name: 'Customer review link' })).toBeVisible();
+  await page.goto('/ack');
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', 'Review one saved quote revision and create an acknowledgment code.');
+  const manifest = await (await request.get('/manifest.webmanifest')).json() as { description?: string };
+  expect(manifest.description).toBe('Track quote changes and send a customer review link.');
+});
+
+test('390px header keeps Privacy visible with a touch-sized target', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const privacy = page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Privacy' });
+  await expect(privacy).toBeVisible();
+  const box = await privacy.boundingBox();
+  expect(box).not.toBeNull();
+  expect(box!.height).toBeGreaterThanOrEqual(44);
+});
+
+test('every public route has no serious or critical WCAG A/AA axe violations', async ({ page }) => {
+  for (const path of ['/', '/demo', '/vault', '/privacy', '/terms', '/ack', '/missing-stop']) {
+    await page.goto(path);
+    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+    expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact || '')), path).toEqual([]);
+  }
+});
+
+test('sitemap lists every public product route including the acknowledgment route', async ({ request }) => {
+  const sitemap = await (await request.get('/sitemap.xml')).text();
+  for (const path of ['/', '/demo', '/vault', '/privacy', '/terms', '/ack']) {
+    expect(sitemap).toContain(`https://quote-revision-vault.sociobot.in${path}`);
+  }
 });
 
 test('@claim:revision-history keeps saved revisions and shows their changes', async ({ page }) => {
@@ -195,6 +239,34 @@ test('@claim:review-link creates an expiring review link and revokes it for fres
   await expect(freshPage.locator('#ack-form')).toHaveCount(0);
   await recipient.close();
   await freshRecipient.close();
+});
+
+test('@claim:review-registry-privacy creates a real review link without sending or storing quote contents', async ({ page }) => {
+  let requestUrl = '';
+  let requestBody: Record<string, unknown> | undefined;
+  await page.route('**/api/review-links/**', async (route) => {
+    requestUrl = route.request().url();
+    requestBody = route.request().postDataJSON() as Record<string, unknown>;
+    await route.fulfill({ status: 201, contentType: 'application/json', body: '{"state":"active"}' });
+  });
+  await createSavedRealQuote(page);
+  await page.getByRole('button', { name: 'Create review link' }).click();
+  await expect(page.locator('#share-output')).toContainText('Review link created.');
+
+  expect(requestBody).toBeDefined();
+  expect(Object.keys(requestBody!).sort()).toEqual(['action', 'expiresAt', 'ownerKey']);
+  expect(requestBody!.action).toBe('create');
+  const sent = JSON.stringify(requestBody);
+  expect(sent).not.toContain('Riverbend signage update');
+  expect(sent).not.toContain('Avery Patel');
+
+  const id = new URL(requestUrl).pathname.split('/').at(-1)!;
+  const created = handleReviewLink({ method: 'POST', params: { id }, body: requestBody! }, undefined, Date.now());
+  expect(created.response.status).toBe(201);
+  expect(Object.keys(created.entity || {}).sort()).toEqual(['PartitionKey', 'RowKey', 'expiresAt', 'ownerKeyHash', 'revokedAt']);
+  const stored = JSON.stringify(created.entity);
+  expect(stored).not.toContain('Riverbend signage update');
+  expect(stored).not.toContain('Avery Patel');
 });
 
 test('real review links fail closed when their live status cannot be checked', async ({ page }) => {

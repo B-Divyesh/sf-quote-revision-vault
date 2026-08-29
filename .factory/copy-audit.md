@@ -1,10 +1,12 @@
 # Copy audit
 
-Audited 2026-08-29 for polish round 3 against the plain-words rules. Counts treat prices and hyphenated terms as one word. No line exceeds 22 words. No line contains a banned word.
+Audited 2026-08-29 for polish round 4 against the plain-words rules. Counts treat prices and hyphenated terms as one word. No line exceeds 22 words. No line contains a banned word.
 
 | Copy | Words | Role |
 | --- | ---: | --- |
 | Quote Revision Vault | 3 | Wordmark |
+| Quote Revision Vault — Save and compare quote revisions | 8 | Landing title and social title |
+| Keep earlier quote prices and scope while you prepare the next revision. | 11 | Landing description |
 | Revise quotes without losing earlier prices or scope | 8 | Headline |
 | For solo service providers who need to prove what changed before billing. | 11 | Audience and outcome |
 | Try it with sample data | 5 | Primary action |
@@ -33,6 +35,7 @@ Audited 2026-08-29 for polish round 3 against the plain-words rules. Counts trea
 | Paste a license | 3 | Restore action |
 | Save and compare quote revisions in this browser. | 8 | Footer |
 | Original poster art generated for this product. | 7 | Provenance covered by `art-provenance` |
+| Version 1.0.0 · Build 2026-08-29 | 5 | Build identifier on app and 404 routes |
 
 ## Demo banner and standalone 404
 
@@ -46,6 +49,9 @@ Audited 2026-08-29 for polish round 3 against the plain-words rules. Counts trea
 | Return home | 2 | 404 recovery action |
 | Save and compare quote revisions in this browser. | 8 | Footer on app and 404 routes |
 | Built by Param Factory (external) | 5 | External-link disclosure on app and 404 routes |
+| Customer review link | 3 | Demo panel heading |
+| Review one saved quote revision and create an acknowledgment code. | 10 | `/ack` description |
+| Track quote changes and send a customer review link. | 9 | Installed-app description |
 
 ## Terminology
 
@@ -59,4 +65,4 @@ Audited 2026-08-29 for polish round 3 against the plain-words rules. Counts trea
 | The customer’s returned review record | acknowledgment |
 | The paid license | Studio Pass |
 
-Catalog description: “Revise client quotes without losing earlier prices, scope, or proof of what changed.” It is 13 words and 84 characters.
+Catalog description: “Track client quote revisions without losing earlier prices, scope, or proof of what changed.” It is 14 words and 92 characters.

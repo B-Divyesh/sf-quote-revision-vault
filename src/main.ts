@@ -56,7 +56,7 @@ function header() {
 }
 
 function footer() {
-  return `<footer class="site-footer"><div class="footer-inner"><div><p>Save and compare quote revisions in this browser.</p><p class="provenance">Original poster art generated for this product. Version 1.0.0 · Build 2026-08-29</p></div><nav class="footer-links" aria-label="Footer">${navLink('/privacy','Privacy')}${navLink('/terms','Terms')}<a href="https://hello-factory.sociobot.in">Built by Param Factory (external)</a></nav></div></footer>`;
+  return `<footer class="site-footer"><div class="footer-inner"><div><p>Save and compare quote revisions in this browser.</p><p class="provenance">Original poster art generated for this product. <span class="build-id">Version 1.0.0 · Build 2026-08-29</span></p></div><nav class="footer-links" aria-label="Footer">${navLink('/privacy','Privacy')}${navLink('/terms','Terms')}<a href="https://hello-factory.sociobot.in">Built by Param Factory (external)</a></nav></div></footer>`;
 }
 
 function page(content: string) {
@@ -80,7 +80,7 @@ function setMeta(title: string, description: string, canonicalPath = location.pa
 }
 
 function landing() {
-  setMeta('Quote Revision Vault — Revise quotes safely', 'Keep earlier quote prices and scope while you prepare the next revision.');
+  setMeta('Quote Revision Vault — Save and compare quote revisions', 'Keep earlier quote prices and scope while you prepare the next revision.');
   page(`<main id="main">
     <section class="hero" aria-labelledby="landing-title">
       <div class="hero-copy">
@@ -202,7 +202,7 @@ function shareHtml(quote: Quote, revisionId: string) {
   const activeShares = quote.shares.slice().reverse();
   const demoNotice = 'Demo review links are local samples. They never contact the live review-link service.';
   const realNotice = 'A customer can note their review, but this is not a legal signature. Blocking a link hides the quote on every device.';
-  return `<section class="share-panel" aria-labelledby="share-title"><h3 id="share-title">Customer review receipt</h3><p>Copy a self-contained link with this saved revision. The link expires on the date you choose.</p><p class="notice">${isDemo ? demoNotice : realNotice}</p><div class="share-grid"><div class="field"><label for="share-days">Link expires after</label><select id="share-days"><option value="7">7 days</option><option value="14" selected>14 days</option><option value="30">30 days</option></select></div><button class="button small" type="button" id="create-share" data-revision-id="${revisionId}">Create review link</button></div><div id="share-output" aria-live="polite"></div>${activeShares.length ? `<h3>Created links</h3><ul class="share-list">${activeShares.map((share) => `<li><span><strong>${share.revokedAt ? 'Blocked' : share.ownerKey ? 'Active' : 'Replace this old link'}</strong><br><small>Expires ${new Date(share.expiresAt).toLocaleDateString()}</small></span>${!share.revokedAt && share.ownerKey ? `<button class="button ghost small" type="button" data-revoke-share="${share.id}">Block review link</button>` : ''}</li>`).join('')}</ul>` : ''}<button class="button ghost small" id="import-receipt" type="button">Import acknowledgment code</button>${quote.acknowledgements.length ? `<p>${quote.acknowledgements.length} acknowledgment${quote.acknowledgements.length === 1 ? '' : 's'} imported.</p>` : ''}</section>`;
+  return `<section class="share-panel" aria-labelledby="share-title"><h3 id="share-title">Customer review link</h3><p>Copy a self-contained link with this saved revision. The link expires on the date you choose.</p><p class="notice">${isDemo ? demoNotice : realNotice}</p><div class="share-grid"><div class="field"><label for="share-days">Link expires after</label><select id="share-days"><option value="7">7 days</option><option value="14" selected>14 days</option><option value="30">30 days</option></select></div><button class="button small" type="button" id="create-share" data-revision-id="${revisionId}">Create review link</button></div><div id="share-output" aria-live="polite"></div>${activeShares.length ? `<h3>Created links</h3><ul class="share-list">${activeShares.map((share) => `<li><span><strong>${share.revokedAt ? 'Blocked' : share.ownerKey ? 'Active' : 'Replace this old link'}</strong><br><small>Expires ${new Date(share.expiresAt).toLocaleDateString()}</small></span>${!share.revokedAt && share.ownerKey ? `<button class="button ghost small" type="button" data-revoke-share="${share.id}">Block review link</button>` : ''}</li>`).join('')}</ul>` : ''}<button class="button ghost small" id="import-receipt" type="button">Import acknowledgment code</button>${quote.acknowledgements.length ? `<p>${quote.acknowledgements.length} acknowledgment${quote.acknowledgements.length === 1 ? '' : 's'} imported.</p>` : ''}</section>`;
 }
 
 function status(message: string, error = false) {
@@ -386,7 +386,7 @@ function legal(kind: 'privacy'|'terms') {
 }
 
 async function acknowledgment() {
-  setMeta('Review a quote — Quote Revision Vault','Review one saved quote revision and copy an acknowledgment receipt.');
+  setMeta('Review a quote — Quote Revision Vault','Review one saved quote revision and create an acknowledgment code.');
   const params = new URLSearchParams(location.hash.slice(1)); const raw = params.get('packet'); let packet: SharePacket | undefined;
   try { if (raw) packet = decode<SharePacket>(raw); } catch { packet = undefined; }
   if (!packet || packet.version !== 2) { page(`<main id="main" class="page"><div class="shell"><h1 tabindex="-1">This review link is incomplete</h1><p>The link is old or its quote data is missing. Ask the sender to create a new review link.</p><a class="button" href="/">Return home</a></div></main>`); return; }
