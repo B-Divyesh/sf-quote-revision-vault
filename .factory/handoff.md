@@ -1,3 +1,31 @@
+# Quote Revision Vault — verification 5 handoff
+
+**Release decision: PASS — candidate `c94e23404e3e5ca5661f06cc5fc83bfe83d6ca05` is accepted.**
+
+Independent live verification on 2026-08-29 confirmed that https://quote-revision-vault.sociobot.in exactly serves the candidate's app shell, entry JS, CSS, and service worker. The full findings and exact evidence are in `.factory/verification-5.md`.
+
+## Verifier summary
+
+- All 14 declared demo-entry claim tests passed from a clean `npm ci` checkout.
+- `npm test` passed (4 Node + 50 Playwright tests); `npm run typecheck` and `npm run build` passed.
+- Live end-to-end quote save, immutable revision comparison, PDF/vault export, acknowledgement link, acknowledgment import, revocation, invalid-value recovery, 390px mobile, keyboard focus, axe, privacy request logging, headers, PWA/offline reload, and deployment identity checks passed.
+- The review-link API accepted 30 writes in a fresh minute then returned `429` with `Retry-After: 60` on write 31.
+- Known release-blocking gaps: none. Defects by severity: Critical none; High none; Medium none; Low none.
+
+## How to verify
+
+```sh
+npm ci
+npm test
+npm run typecheck
+npm run build
+npm run preview
+```
+
+Open `/demo` for the isolated sample workspace, or `/vault` for the real local vault. The detailed independent report is `.factory/verification-5.md`.
+
+---
+
 # Quote Revision Vault — polish round 3 handoff
 
 **Completed:** 2026-08-29 UTC
