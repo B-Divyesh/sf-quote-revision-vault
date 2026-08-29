@@ -1,0 +1,83 @@
+{
+  "base": "https://quote-revision-vault.sociobot.in",
+  "timestamp": "2026-08-29T15:24:26.735Z",
+  "routes": {
+    "landing": {
+      "title": "Quote Revision Vault — Save and compare quote revisions",
+      "canonical": "https://quote-revision-vault.sociobot.in/"
+    },
+    "/": {
+      "title": "Quote Revision Vault — Save and compare quote revisions",
+      "canonical": "https://quote-revision-vault.sociobot.in/"
+    },
+    "/demo": {
+      "title": "Demo — Quote Revision Vault",
+      "canonical": "https://quote-revision-vault.sociobot.in/demo"
+    },
+    "/vault": {
+      "title": "Vault — Quote Revision Vault",
+      "canonical": "https://quote-revision-vault.sociobot.in/vault"
+    },
+    "/privacy": {
+      "title": "Privacy — Quote Revision Vault",
+      "canonical": "https://quote-revision-vault.sociobot.in/privacy"
+    },
+    "/terms": {
+      "title": "Terms — Quote Revision Vault",
+      "canonical": "https://quote-revision-vault.sociobot.in/terms"
+    },
+    "/ack": {
+      "title": "Review a quote — Quote Revision Vault",
+      "canonical": "https://quote-revision-vault.sociobot.in/ack"
+    },
+    "focusAfterNavigation": true,
+    "notFound": {
+      "status": 404,
+      "build": "Version 1.0.0 · Build 2026-08-29"
+    },
+    "sitemapHasAck": true
+  },
+  "demo": {
+    "url": "https://quote-revision-vault.sociobot.in/?demo=1",
+    "reset": true,
+    "registryRequests": 0
+  },
+  "customerBoundary": {
+    "serviceMethods": [
+      "POST",
+      "GET"
+    ],
+    "bodyKeys": [
+      "action",
+      "expiresAt",
+      "ownerKey"
+    ],
+    "stores": [
+      "quotes"
+    ],
+    "offOriginRequests": 0
+  },
+  "mobile": {
+    "privacyTargetHeight": 44,
+    "horizontalOverflow": false
+  },
+  "offline": {
+    "savedRate": 905,
+    "reload": true
+  },
+  "axe": {
+    "/": [],
+    "/demo": [],
+    "/vault": [],
+    "/privacy": [],
+    "/terms": [],
+    "/ack": [],
+    "/missing-polish-5": []
+  },
+  "headers": {
+    "cspFrameAncestors": true,
+    "referrerPolicy": "strict-origin-when-cross-origin",
+    "contentTypeOptions": "nosniff"
+  },
+  "errors": []
+}
