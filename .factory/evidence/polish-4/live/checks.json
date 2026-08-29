@@ -1,0 +1,66 @@
+{
+  "base": "https://quote-revision-vault.sociobot.in",
+  "timestamp": "2026-08-29T11:29:12.713Z",
+  "routes": {
+    "landing": {
+      "title": "Quote Revision Vault — Save and compare quote revisions",
+      "canonical": "https://quote-revision-vault.sociobot.in/"
+    },
+    "notFound": {
+      "status": 404,
+      "build": "Version 1.0.0 · Build 2026-08-29"
+    },
+    "ack": {
+      "title": "Review a quote — Quote Revision Vault",
+      "description": "Review one saved quote revision and create an acknowledgment code."
+    },
+    "sitemapHasAck": true
+  },
+  "axe": {
+    "/": {
+      "violations": []
+    },
+    "/demo": {
+      "violations": []
+    },
+    "/privacy": {
+      "violations": []
+    },
+    "/terms": {
+      "violations": []
+    },
+    "/ack": {
+      "violations": []
+    },
+    "/missing-review-4": {
+      "violations": []
+    }
+  },
+  "demo": {
+    "demoUrl": "https://quote-revision-vault.sociobot.in/?demo=1",
+    "resetTitle": "Harbour Street identity refresh",
+    "requests": 10,
+    "registryRequests": 0
+  },
+  "registryPrivacy": {
+    "endpoint": "/api/review-links/29800049/9eaba537-45de-4c9b-a432-491018c4705c",
+    "bodyKeys": [
+      "action",
+      "expiresAt",
+      "ownerKey"
+    ],
+    "blocked": true
+  },
+  "mobile": {
+    "privacyTargetHeight": 44,
+    "horizontalOverflow": false
+  },
+  "offline": {
+    "savedRate": 903,
+    "reload": true
+  },
+  "errors": [],
+  "license": {
+    "unavailableVerifierKeepsOneQuote": true
+  }
+}
