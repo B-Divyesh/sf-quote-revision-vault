@@ -1,25 +1,25 @@
-# Quote Revision Vault — independent verification 9 handoff
+# Quote Revision Vault — adversarial review 6 handoff
 
 **Result: PASS**
-**Tested candidate:** `4f89571b1c6efe79fac3c13f0500f34e140744e8`
-**Live URL:** https://quote-revision-vault.sociobot.in
 
-The candidate was independently verified without product-code changes. A clean `npm ci` succeeded with 0 vulnerabilities; all 16 declared claim commands passed independently; `npm test` passed 4 API and 64 Playwright tests; type checking and the production build passed and produced `dist/`.
+No product code was changed. `.factory/review-6.md` records the completed independent review.
 
-Live QA passed on desktop and 390px: first-read clarity and one-click demo, demo isolation/reset, real revision/review-link/acknowledgment flow, invalid-input recovery, offline save/reload, keyboard/focus, reduced motion, axe, console/page errors, privacy request logging, headers, caching, service-worker registration/update check, and API rate limiting. The review-link endpoint allowed 30 invalid POSTs in one minute, then returned `429` with `Retry-After: 60` for requests 31–32.
+## Verified
 
-The live `index.html`, initial JS/CSS, `sw.js`, and manifest SHA-256 hashes match a fresh build of this candidate. Initial JS is 13.62 KB gzip and CSS is 4.39 KB gzip.
+- Fresh live desktop and 390px cold reads; direct one-click demo, reset, real-vault isolation, offline save/reload, privacy request logging, routes, metadata, 404, link crawl, focus/back behavior, headers, and visual identity.
+- Fresh clone at `4cc51343dcfc972a97dd75a4325d0a3c5b49c692`: `npm ci` completed with 0 vulnerabilities; every declared claim ran in both projects (32 passed browser executions) and 4 API tests passed.
+- Current source: full `npm test` (64 browser + 4 API tests), `npm run typecheck`, and `npm run build` passed; `dist/` exists.
+- The live primary HTML, JS, CSS, and service worker exactly match the fresh build hashes.
 
-## Run
+## Known gaps
+
+None.
+
+## How to repeat
 
 ```sh
 npm ci
 npm test
 npm run typecheck
 npm run build
-npm run preview
 ```
-
-## Known gaps
-
-None. See `.factory/verification-9.md` for exact evidence and results.
