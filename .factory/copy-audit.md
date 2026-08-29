@@ -31,7 +31,7 @@ Audited 2026-08-29 against the plain-words rules. Counts treat prices and hyphen
 | Use a license you already have | 7 | Section heading |
 | Paste an existing Studio Pass license to create more than one quote. | 11 | License detail |
 | Paste a license | 3 | Restore action |
-| Keep the quote you sent and the change you made. | 10 | Footer |
+| Save and compare quote revisions in this browser. | 8 | Footer |
 | Original poster art generated for this product. | 7 | Provenance |
 
 ## Terminology
@@ -46,4 +46,4 @@ Audited 2026-08-29 against the plain-words rules. Counts treat prices and hyphen
 | The customer’s returned review record | acknowledgment |
 | The paid license | Studio Pass |
 
-Catalog description: “Revise client quotes without losing earlier prices, scope, or saved versions.” It is 10 words and 78 characters.
+Catalog description: “Revise client quotes while keeping every earlier price and scope.” It is 10 words and 66 characters.

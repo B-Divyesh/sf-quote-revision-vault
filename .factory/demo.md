@@ -6,4 +6,4 @@
 - Reset: use **Reset demo** in the persistent banner. This deletes and reseeds only `qrv-demo-v1`.
 - Leave: use **Start for real**. Demo records are not copied.
 - Offline: load the demo once, then disable the network and reload `/demo`.
-- Review links: their quote stays in the URL fragment. The same-origin registry stores only link status metadata and lets the owner block access across browsers.
+- Review links: demo review links are self-contained samples. They never call the live registry; blocking changes only the demo workspace. Real-vault review links keep quote data in the URL fragment and use the registry only for status metadata.

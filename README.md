@@ -4,7 +4,7 @@ Quote Revision Vault is a quote editor for solo service providers. It works with
 
 Quotes stay in this browser until you export a backup file or copy a review link. The free vault creates one quote with its revision history.
 
-Try the isolated sample at `/demo` or `/?demo=1`. It opens a separate sample workspace. Demo changes never enter your real vault.
+Try the isolated sample at `/demo` or `/?demo=1`. It opens a separate sample workspace. Demo links stay local and never use the live review-link service.
 
 ## Run and verify
 
@@ -28,13 +28,13 @@ The production build command is `npm run build`. It creates `dist/`, with `dist/
 4. Export a saved revision as a PDF or create a dated review link.
 5. Export a JSON vault file for backup or device transfer.
 
-A customer can return an acknowledgment code. This records review only. It is not a legal signature. The owner can block a review link on every device. Before showing a quote, the app checks whether that link is active.
+A customer can return an acknowledgment code. It records review, not a legal signature. The owner can block a real review link on every device. Before showing a quote, the app checks whether that link is active.
 
 ## Privacy and licenses
 
-The app does not load analytics, ads, remote fonts, tracking scripts, or automatic cloud sync. The review-link service receives no quote contents. It keeps only what it needs to tell whether a link is active: a random ID, expiry date, protected owner key, and block time.
+The app does not load analytics, ads, remote fonts, tracking scripts, or automatic cloud sync. The review-link service receives no quote contents. The service stores a random link ID and expiry date. It stores no quote or customer details.
 
-License verification sends only a pasted Studio Pass token to Sociobot. People with a current Studio Pass can paste it to create more than one quote. No payment form is embedded in this app.
+License verification sends only a pasted Studio Pass token to Sociobot. People with a verified Studio Pass can create more than one quote. The app offers no payment form.
 
 See `/privacy` and `/terms` in the app. The code is MIT licensed.
 

@@ -2,6 +2,7 @@ const SLUG = 'quote-revision-vault';
 const TOKEN_KEY = `sb_license:${SLUG}`;
 const VERDICT_KEY = `sb_license_verdict:${SLUG}`;
 const DAY = 86400000;
+const OFFLINE_GRACE = 7 * DAY;
 
 interface Verdict { valid: boolean; checkedAt: number; reason: string }
 
@@ -10,7 +11,9 @@ export function captureLicense(): void {
   const token = url.searchParams.get('license');
   if (!token) return;
   localStorage.setItem(TOKEN_KEY, token);
-  localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: true, checkedAt: 0, reason: 'pending' }));
+  // A URL can carry a typo or an expired token.  It is deliberately not a
+  // license until the verification endpoint has positively confirmed it.
+  localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: false, checkedAt: 0, reason: 'unverified' }));
   url.searchParams.delete('license');
   history.replaceState({}, '', url.pathname + url.search + url.hash);
 }
@@ -20,9 +23,9 @@ export function hasLicense(): boolean {
   if (!token) return false;
   try {
     const verdict = JSON.parse(localStorage.getItem(VERDICT_KEY) || '') as Verdict;
-    return verdict.valid;
+    return verdict.valid && verdict.checkedAt > 0;
   } catch {
-    return true;
+    return false;
   }
 }
 
@@ -32,7 +35,7 @@ export function hasStoredLicense(): boolean {
 
 export function storeLicense(token: string): void {
   localStorage.setItem(TOKEN_KEY, token.trim());
-  localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: true, checkedAt: 0, reason: 'pending' }));
+  localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: false, checkedAt: 0, reason: 'unverified' }));
 }
 
 export async function verifyLicense(force = false): Promise<boolean> {
@@ -47,6 +50,13 @@ export async function verifyLicense(force = false): Promise<boolean> {
     localStorage.setItem(VERDICT_KEY, JSON.stringify({ valid: data.valid, reason: data.reason, checkedAt: Date.now() }));
     return data.valid;
   } catch {
-    return hasLicense();
+    // A person who was already verified can continue while temporarily
+    // offline. A newly pasted token never receives that grace period.
+    try {
+      const cached = JSON.parse(localStorage.getItem(VERDICT_KEY) || '{}') as Partial<Verdict>;
+      return cached.valid === true && Boolean(cached.checkedAt) && Date.now() - Number(cached.checkedAt) <= OFFLINE_GRACE;
+    } catch {
+      return false;
+    }
   }
 }

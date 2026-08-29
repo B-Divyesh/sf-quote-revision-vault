@@ -2,6 +2,18 @@ import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import AxeBuilder from '@axe-core/playwright';
 
+async function createSavedRealQuote(page: import('@playwright/test').Page) {
+  await page.goto('/vault');
+  await page.locator('#empty-new').click();
+  await page.locator('#quote-title').fill('Riverbend signage update');
+  await page.locator('#client').fill('Avery Patel');
+  await page.locator('#desc-0').fill('Site survey');
+  await page.locator('#rate-0').fill('500');
+  await page.locator('#revision-reason').fill('Initial quote');
+  await page.getByRole('button', { name: 'Save new revision' }).click();
+  await expect(page.getByText('Revision 1', { exact: true })).toBeVisible();
+}
+
 test('landing page explains the job and has no serious accessibility errors', async ({ page }) => {
   const errors: string[] = [];
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
@@ -99,7 +111,7 @@ test('@claim:vault-export downloads all local quote history as JSON', async ({ p
 });
 
 test('@claim:review-link creates an expiring review link and revokes it for fresh recipients', async ({ page, browser }) => {
-  await page.goto('/demo');
+  await createSavedRealQuote(page);
   await page.locator('#share-days').selectOption('7');
   await page.getByRole('button', { name: 'Create review link' }).click();
   const output = page.locator('#share-output');
@@ -109,7 +121,7 @@ test('@claim:review-link creates an expiring review link and revokes it for fres
   const recipientPage = await recipient.newPage();
   await recipientPage.goto(text);
   await expect(recipientPage.getByRole('heading', { level: 1 })).toHaveText('Review this saved quote');
-  await expect(recipientPage.getByText('Harbour Street identity refresh')).toBeVisible();
+  await expect(recipientPage.getByText('Riverbend signage update')).toBeVisible();
   await expect(recipientPage.getByText('Review link expires:', { exact: false })).toBeVisible();
   await recipientPage.locator('#ack-name').fill('Mara Chen');
   await recipientPage.getByRole('button', { name: 'Create acknowledgment code' }).click();
@@ -126,7 +138,6 @@ test('@claim:review-link creates an expiring review link and revokes it for fres
   await recipientPage.goto(`/ack#packet=${expiringPacket}`);
   await expect(recipientPage.getByRole('heading', { level: 1 })).toHaveText('This review link is expired');
   await expect(recipientPage.getByText('Harbour Street identity refresh')).toHaveCount(0);
-  await page.goto('/demo');
   await page.getByRole('button', { name: 'Import acknowledgment code' }).click();
   await page.locator('#receipt-code').fill(receipt);
   await page.getByRole('button', { name: 'Import code' }).click();
@@ -146,8 +157,8 @@ test('@claim:review-link creates an expiring review link and revokes it for fres
   await freshRecipient.close();
 });
 
-test('review links fail closed when their live status cannot be checked', async ({ page }) => {
-  await page.goto('/demo');
+test('real review links fail closed when their live status cannot be checked', async ({ page }) => {
+  await createSavedRealQuote(page);
   await page.getByRole('button', { name: 'Create review link' }).click();
   const url = await page.locator('#share-output span').innerText();
   await page.route('**/api/review-links/**', (route) => route.fulfill({ status: 503, contentType: 'application/json', body: '{"message":"offline"}' }));
@@ -157,7 +168,9 @@ test('review links fail closed when their live status cannot be checked', async 
   await expect(page.locator('#ack-form')).toHaveCount(0);
 });
 
-test('@claim:demo-isolation keeps sample changes outside the real vault', async ({ page }) => {
+test('@claim:demo-isolation keeps every sample action outside the real vault and live registry', async ({ page, browser }) => {
+  const registryRequests: string[] = [];
+  page.on('request', (request) => { if (request.url().includes('/api/review-links/')) registryRequests.push(request.url()); });
   await page.goto('/?demo=1');
   await expect(page.getByLabel('Demo mode')).toContainText('Demo — sample data, nothing is saved');
   await expect(page.getByRole('button', { name: 'Reset demo' })).toBeVisible();
@@ -165,11 +178,29 @@ test('@claim:demo-isolation keeps sample changes outside the real vault', async 
   await page.locator('#quote-title').fill('Changed only in demo');
   await page.locator('#revision-reason').fill('Demo-only title change');
   await page.getByRole('button', { name: 'Save new revision' }).click();
+  await page.getByRole('button', { name: 'Create review link' }).click();
+  const sampleLink = await page.locator('#share-output span').innerText();
+  expect(sampleLink).toContain('/ack#packet=');
+  const recipient = await browser.newContext();
+  const recipientPage = await recipient.newPage();
+  recipientPage.on('request', (request) => { if (request.url().includes('/api/review-links/')) registryRequests.push(request.url()); });
+  await recipientPage.goto(sampleLink);
+  await expect(recipientPage.getByRole('heading', { level: 1 })).toHaveText('Review this saved quote');
+  await recipientPage.locator('#ack-name').fill('Sample recipient');
+  await recipientPage.getByRole('button', { name: 'Create acknowledgment code' }).click();
+  const receipt = await recipientPage.locator('#receipt-result').inputValue();
+  await page.getByRole('button', { name: 'Import acknowledgment code' }).click();
+  await page.locator('#receipt-code').fill(receipt);
+  await page.getByRole('button', { name: 'Import code' }).click();
+  await page.getByRole('button', { name: 'Block review link' }).click();
+  await expect(page.locator('#vault-status')).toHaveText('The sample review link is blocked in this demo workspace.');
+  expect(registryRequests).toEqual([]);
   await page.getByRole('button', { name: 'Reset demo' }).click();
   await expect(page.locator('#quote-title')).toHaveValue('Harbour Street identity refresh');
   await page.goto('/vault');
   await expect(page.getByRole('heading', { name: 'Your first revision starts here' })).toBeVisible();
   await expect(page.getByText('Changed only in demo')).toHaveCount(0);
+  await recipient.close();
 });
 
 test('@claim:local-privacy sends no quote data to another origin', async ({ page }) => {
@@ -226,16 +257,63 @@ test('@claim:offline-reload saves and reloads a revision without a network after
   await expect(page.locator('#comparison')).toContainText('$901.00');
 });
 
-test('@claim:license-restore an existing valid Studio Pass unlocks creation of more than one real quote', async ({ page }) => {
-  await page.addInitScript(() => {
-    localStorage.setItem('sb_license:quote-revision-vault','test-token');
-    localStorage.setItem('sb_license_verdict:quote-revision-vault',JSON.stringify({valid:true,reason:'ok',checkedAt:Date.now()}));
-  });
+test('@claim:license-restore only a positive verification unlocks a second real quote', async ({ page, browser }) => {
+  await page.route('https://api.sociobot.in/api/v1/products/quote-revision-vault/verify?license=valid-token', route => route.fulfill({ contentType: 'application/json', body: '{"valid":true,"reason":"ok"}' }));
   await page.goto('/vault');
   await page.locator('#empty-new').click();
-  await expect(page.locator('.quote-list li')).toHaveCount(1);
+  await page.locator('#new-quote').click();
+  await page.locator('#license-token').fill('valid-token');
+  await page.getByRole('button', { name: 'Verify license' }).click();
+  await expect(page.getByText('Studio Pass active. You can create more quotes.')).toBeVisible();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.locator('#new-quote').click();
   await expect(page.locator('.quote-list li')).toHaveCount(2);
+
+  for (const [token, response] of [['bad-token', '{"valid":false,"reason":"invalid"}'], ['offline-token', null]] as const) {
+    const context = await browser.newContext();
+    const candidate = await context.newPage();
+    await candidate.route(`https://api.sociobot.in/api/v1/products/quote-revision-vault/verify?license=${token}`, route => response === null ? route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }) : route.fulfill({ contentType: 'application/json', body: response }));
+    await candidate.goto('/vault');
+    await candidate.locator('#empty-new').click();
+    await candidate.locator('#new-quote').click();
+    await candidate.locator('#license-token').fill(token);
+    await candidate.getByRole('button', { name: 'Verify license' }).click();
+    await expect(candidate.getByText('This license is not active or could not be checked. Keep the one-quote vault and try again when you are online.')).toBeVisible();
+    await expect(candidate.locator('.quote-list li')).toHaveCount(1);
+    await context.close();
+  }
+});
+
+test('@claim:license-data sends only the pasted license token to Sociobot', async ({ page }) => {
+  let requestUrl = '';
+  await page.route('https://api.sociobot.in/api/v1/products/quote-revision-vault/verify?license=*', route => { requestUrl = route.request().url(); return route.fulfill({ contentType: 'application/json', body: '{"valid":false,"reason":"invalid"}' }); });
+  await page.goto('/vault');
+  await page.locator('#empty-new').click();
+  await page.locator('#new-quote').click();
+  await page.locator('#license-token').fill('only-token');
+  await page.getByRole('button', { name: 'Verify license' }).click();
+  const request = new URL(requestUrl);
+  expect(request.origin).toBe('https://api.sociobot.in');
+  expect(request.pathname).toBe('/api/v1/products/quote-revision-vault/verify');
+  expect(request.searchParams.get('license')).toBe('only-token');
+  expect(request.searchParams.size).toBe(1);
+  expect(requestUrl).not.toContain('Riverbend');
+  expect(requestUrl).not.toContain('Avery');
+});
+
+test('@claim:scope-boundaries offers no payment, invoice, or legal e-signature action', async ({ page, request }) => {
+  for (const path of ['/', '/terms']) {
+    await page.goto(path);
+    await expect(page.locator('form')).toHaveCount(0);
+    await expect(page.locator('a[href*="checkout"], a[href*="invoice"], a[href*="signature"]')).toHaveCount(0);
+  }
+  await page.goto('/');
+  await expect(page.getByText('No payments or invoices.')).toBeVisible();
+  await expect(page.getByText('No legal e-signatures.')).toBeVisible();
+  await page.goto('/terms');
+  await expect(page.getByText('Quote Revision Vault records quote changes. It offers no payments, invoices, or legal e-signatures.')).toBeVisible();
+  await expect(page.getByText('It is not a legally binding electronic signature.')).toBeVisible();
+  for (const path of ['/checkout', '/invoice', '/signature']) expect((await request.get(path)).status()).toBe(404);
 });
 
 test('@claim:free-one-quote allows one real quote and asks for a license before the second', async ({ page }) => {

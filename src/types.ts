@@ -51,6 +51,8 @@ export interface Quote extends QuoteSnapshot {
 
 export interface SharePacket {
   version: 2;
+  /** Demo packets are local samples and never consult the live registry. */
+  demo?: boolean;
   shareId: string;
   quoteId: string;
   revisionId: string;
