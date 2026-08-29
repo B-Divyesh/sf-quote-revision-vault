@@ -1,0 +1,193 @@
+{
+  "checkedAt": "2026-08-29T09:23:18.551Z",
+  "baseURL": "https://quote-revision-vault.sociobot.in",
+  "repeatedFreshContexts": [
+    {
+      "viewport": "desktop",
+      "run": 1,
+      "initial": "BODY",
+      "order": [
+        {
+          "text": "Skip to main content",
+          "ariaLabel": null
+        },
+        {
+          "text": "Quote Revision Vault",
+          "ariaLabel": "Quote Revision Vault home"
+        },
+        {
+          "text": "Demo",
+          "ariaLabel": null
+        },
+        {
+          "text": "Vault",
+          "ariaLabel": null
+        },
+        {
+          "text": "Privacy",
+          "ariaLabel": null
+        }
+      ],
+      "targetHref": "/privacy",
+      "routeHeadingFocused": true,
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "run": 2,
+      "initial": "BODY",
+      "order": [
+        {
+          "text": "Skip to main content",
+          "ariaLabel": null
+        },
+        {
+          "text": "Quote Revision Vault",
+          "ariaLabel": "Quote Revision Vault home"
+        },
+        {
+          "text": "Demo",
+          "ariaLabel": null
+        },
+        {
+          "text": "Vault",
+          "ariaLabel": null
+        },
+        {
+          "text": "Privacy",
+          "ariaLabel": null
+        }
+      ],
+      "targetHref": "/privacy",
+      "routeHeadingFocused": true,
+      "errors": []
+    },
+    {
+      "viewport": "desktop",
+      "run": 3,
+      "initial": "BODY",
+      "order": [
+        {
+          "text": "Skip to main content",
+          "ariaLabel": null
+        },
+        {
+          "text": "Quote Revision Vault",
+          "ariaLabel": "Quote Revision Vault home"
+        },
+        {
+          "text": "Demo",
+          "ariaLabel": null
+        },
+        {
+          "text": "Vault",
+          "ariaLabel": null
+        },
+        {
+          "text": "Privacy",
+          "ariaLabel": null
+        }
+      ],
+      "targetHref": "/privacy",
+      "routeHeadingFocused": true,
+      "errors": []
+    },
+    {
+      "viewport": "mobile-390",
+      "run": 1,
+      "initial": "BODY",
+      "order": [
+        {
+          "text": "Skip to main content",
+          "ariaLabel": null
+        },
+        {
+          "text": "Quote Revision Vault",
+          "ariaLabel": "Quote Revision Vault home"
+        },
+        {
+          "text": "Demo",
+          "ariaLabel": null
+        },
+        {
+          "text": "Vault",
+          "ariaLabel": null
+        }
+      ],
+      "targetHref": "/vault",
+      "routeHeadingFocused": true,
+      "errors": []
+    },
+    {
+      "viewport": "mobile-390",
+      "run": 2,
+      "initial": "BODY",
+      "order": [
+        {
+          "text": "Skip to main content",
+          "ariaLabel": null
+        },
+        {
+          "text": "Quote Revision Vault",
+          "ariaLabel": "Quote Revision Vault home"
+        },
+        {
+          "text": "Demo",
+          "ariaLabel": null
+        },
+        {
+          "text": "Vault",
+          "ariaLabel": null
+        }
+      ],
+      "targetHref": "/vault",
+      "routeHeadingFocused": true,
+      "errors": []
+    },
+    {
+      "viewport": "mobile-390",
+      "run": 3,
+      "initial": "BODY",
+      "order": [
+        {
+          "text": "Skip to main content",
+          "ariaLabel": null
+        },
+        {
+          "text": "Quote Revision Vault",
+          "ariaLabel": "Quote Revision Vault home"
+        },
+        {
+          "text": "Demo",
+          "ariaLabel": null
+        },
+        {
+          "text": "Vault",
+          "ariaLabel": null
+        }
+      ],
+      "targetHref": "/vault",
+      "routeHeadingFocused": true,
+      "errors": []
+    }
+  ],
+  "mobile": {
+    "viewport": 390,
+    "scrollWidth": 390,
+    "zoomEnabled": true
+  },
+  "accessibility": {
+    "seriousOrCriticalAxe": []
+  },
+  "privacy": {
+    "requestOrigins": [
+      "https://quote-revision-vault.sociobot.in"
+    ]
+  },
+  "offlineUpdate": {
+    "updateCompleted": true,
+    "controlled": true,
+    "revisionVisibleAfterOfflineReload": true
+  },
+  "errors": []
+}

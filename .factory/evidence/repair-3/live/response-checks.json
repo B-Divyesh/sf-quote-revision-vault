@@ -1,0 +1,34 @@
+{
+  "checkedAt": "2026-08-29T09:23:00Z",
+  "url": "https://quote-revision-vault.sociobot.in",
+  "deployedCommit": "e8dfc1b",
+  "deploymentId": "3c4be0f6-4e8b-4886-9c5f-79c53e0f7e79",
+  "routes": {
+    "/": 200,
+    "/demo": 200,
+    "/vault": 200,
+    "/privacy": 200,
+    "/terms": 200,
+    "/robots.txt": 200,
+    "/sitemap.xml": 200,
+    "/manifest.webmanifest": 200,
+    "/missing-stop": 404
+  },
+  "headers": {
+    "content-security-policy": "present",
+    "x-content-type-options": "nosniff",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "permissions-policy": "camera=(), microphone=(), geolocation=()",
+    "strict-transport-security": "max-age=10886400; includeSubDomains; preload",
+    "hashed-assets": "public, max-age=31536000, immutable",
+    "service-worker": "no-cache, no-store, must-revalidate"
+  },
+  "identity": {
+    "indexHtml": "byte-for-byte match",
+    "entryJavaScriptSha256": "b4f2a1bfb6eb45d0cff959ac94c64170fc6f0fefc37a08ec53251d6999b1480d",
+    "entryCssSha256": "5e5a99dbc3d0a7489bda16cbfeae688e5ff6a7395a35428ee99224efeb912f52",
+    "serviceWorkerSha256": "f344ac98ea5720400a8b5e98428efd2678a8f427ead4c2f13dcd0abe68f6b6dd",
+    "manifestSha256": "67a87f89cb4368ab3933ebaa064ea8a8ebd22aa7fdef8e9ee8c32109d256485d"
+  },
+  "managedApiUnknownReviewLinkStatus": 404
+}

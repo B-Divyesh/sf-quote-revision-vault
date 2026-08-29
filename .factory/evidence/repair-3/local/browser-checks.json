@@ -1,0 +1,62 @@
+{
+  "checkedAt": "2026-08-29T09:20:16.806Z",
+  "baseURL": "http://127.0.0.1:4173",
+  "desktop": {
+    "skipVisibleWhenFocused": true,
+    "initialTag": "BODY",
+    "focusOrder": [
+      {
+        "tag": "A",
+        "text": "Skip to main content",
+        "ariaLabel": null
+      },
+      {
+        "tag": "A",
+        "text": "Quote Revision Vault",
+        "ariaLabel": "Quote Revision Vault home"
+      },
+      {
+        "tag": "A",
+        "text": "Demo",
+        "ariaLabel": null
+      },
+      {
+        "tag": "A",
+        "text": "Vault",
+        "ariaLabel": null
+      },
+      {
+        "tag": "A",
+        "text": "Privacy",
+        "ariaLabel": null
+      }
+    ],
+    "routeHeadingFocused": true,
+    "seriousOrCriticalAxe": [],
+    "requestOrigins": [
+      "http://127.0.0.1:4173"
+    ],
+    "consoleErrors": []
+  },
+  "mobile": {
+    "dimensions": {
+      "viewport": 390,
+      "scrollWidth": 390
+    },
+    "reducedMotion": {
+      "matches": true,
+      "scrollBehavior": "auto",
+      "routeTransition": "1e-05s"
+    },
+    "resizedTextDimensions": {
+      "viewport": 390,
+      "scrollWidth": 390
+    },
+    "consoleErrors": []
+  },
+  "offline": {
+    "updateCompleted": true,
+    "offlineRevisionVisible": true,
+    "controlled": true
+  }
+}
