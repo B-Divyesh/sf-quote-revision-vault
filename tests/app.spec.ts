@@ -45,6 +45,35 @@ test('vault supports keyboard use, clear errors, and accessible landmarks', asyn
   expect(results.violations.filter((violation) => ['serious','critical'].includes(violation.impact || ''))).toEqual([]);
 });
 
+test('check cold demo repeatedly starts with skip link, wordmark, and navigation in keyboard order', async ({ browser, baseURL }) => {
+  for (let run = 0; run < 3; run += 1) {
+    const context = await browser.newContext({ baseURL });
+    const page = await context.newPage();
+    await page.goto('/demo');
+
+    await expect(page.locator('body')).toBeFocused();
+
+    const navigationLinks = await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link').all();
+    expect(navigationLinks.length).toBeGreaterThanOrEqual(2);
+    const expectedOrder = [
+      page.getByRole('link', { name: 'Skip to main content' }),
+      page.getByRole('link', { name: 'Quote Revision Vault home' }),
+      ...navigationLinks
+    ];
+
+    for (const target of expectedOrder) {
+      await page.keyboard.press('Tab');
+      await expect(target).toBeFocused();
+    }
+
+    const destination = await navigationLinks.at(-1)!.getAttribute('href');
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(destination!);
+    await expect(page.getByRole('heading', { level: 1 })).toBeFocused();
+    await context.close();
+  }
+});
+
 test('every route sets its own canonical and social metadata', async ({ page }) => {
   const routes = [
     ['/', 'Quote Revision Vault — Revise quotes safely'],

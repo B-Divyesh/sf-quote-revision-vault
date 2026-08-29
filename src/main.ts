@@ -405,7 +405,7 @@ function notFound() {
   page(`<main id="main" class="page"><div class="shell"><p class="eyebrow">Page not found</p><h1 tabindex="-1">This page does not exist</h1><p>The address may be wrong, or the page may have moved.</p><a class="button" href="/">Return home</a></div></main>`);
 }
 
-async function route() {
+async function route(focusHeading = false) {
   isDemo = location.pathname === '/demo' || new URLSearchParams(location.search).get('demo') === '1'; setDemoStorage(isDemo);
   if (location.pathname === '/' && !isDemo) landing();
   else if (location.pathname === '/demo' || location.pathname === '/vault' || isDemo) await loadVault();
@@ -413,14 +413,14 @@ async function route() {
   else if (location.pathname === '/terms') legal('terms');
   else if (location.pathname === '/ack') await acknowledgment();
   else notFound();
-  document.querySelector<HTMLElement>('h1')?.focus({ preventScroll: true });
+  if (focusHeading) document.querySelector<HTMLElement>('h1')?.focus({ preventScroll: true });
   const announcer = document.querySelector('#route-announcer'); if (announcer) announcer.textContent = document.title;
 }
 
-function navigate(path: string) { history.pushState({},'',path); window.scrollTo(0,0); void route(); }
+function navigate(path: string) { history.pushState({},'',path); window.scrollTo(0,0); void route(true); }
 
 captureLicense();
-window.addEventListener('popstate', () => void route());
+window.addEventListener('popstate', () => void route(true));
 window.addEventListener('online', () => document.body.classList.remove('offline'));
 window.addEventListener('offline', () => document.body.classList.add('offline'));
 if (!navigator.onLine) document.body.classList.add('offline');
