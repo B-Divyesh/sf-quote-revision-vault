@@ -1,7 +1,7 @@
 # Polish 2 handoff — Quote Revision Vault
 
 **Completed:** 2026-08-29 UTC
-**Repair commit:** `e50b14ef395a53376aa986826800016c9c97df2a`
+**Repair commits:** `e50b14ef395a53376aa986826800016c9c97df2a`, `2246e00`
 **Deployment:** `677db962-80f3-4382-a4a8-a112911fe99b`
 **Live URL:** https://quote-revision-vault.sociobot.in
 
@@ -22,7 +22,7 @@ npm run typecheck
 npm run build
 ```
 
-For exact claim coverage, run every command in `.factory/claims.json`. All 13 were run separately from clean clone `/tmp/qrv-polish-2-clean`, then the full 46-Playwright-test suite passed. The clean install reported 0 vulnerabilities.
+For exact claim coverage, run every command in `.factory/claims.json`. All 13 were run separately from final clean clone `/tmp/qrv-polish-2-final`, then the full 46-Playwright-test suite passed. The clean install reported 0 vulnerabilities. The license-data claim also asserts the verifier uses a GET with only the pasted token and no entered quote or customer content.
 
 `npm run build` produces `dist/index.html`. The static deploy was completed with `/opt/fleet/lib/deploy-static.sh quote-revision-vault /work/repo/dist`.
 
