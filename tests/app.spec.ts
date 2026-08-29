@@ -286,19 +286,23 @@ test('@claim:license-restore only a positive verification unlocks a second real 
 
 test('@claim:license-data sends only the pasted license token to Sociobot', async ({ page }) => {
   let requestUrl = '';
-  await page.route('https://api.sociobot.in/api/v1/products/quote-revision-vault/verify?license=*', route => { requestUrl = route.request().url(); return route.fulfill({ contentType: 'application/json', body: '{"valid":false,"reason":"invalid"}' }); });
+  let requestMethod = '';
+  await page.route('https://api.sociobot.in/api/v1/products/quote-revision-vault/verify?license=*', route => { requestUrl = route.request().url(); requestMethod = route.request().method(); return route.fulfill({ contentType: 'application/json', body: '{"valid":false,"reason":"invalid"}' }); });
   await page.goto('/vault');
   await page.locator('#empty-new').click();
+  await page.locator('#quote-title').fill('Private proposal 2026');
+  await page.locator('#client').fill('Private customer');
   await page.locator('#new-quote').click();
   await page.locator('#license-token').fill('only-token');
   await page.getByRole('button', { name: 'Verify license' }).click();
   const request = new URL(requestUrl);
   expect(request.origin).toBe('https://api.sociobot.in');
   expect(request.pathname).toBe('/api/v1/products/quote-revision-vault/verify');
+  expect(requestMethod).toBe('GET');
   expect(request.searchParams.get('license')).toBe('only-token');
   expect(request.searchParams.size).toBe(1);
-  expect(requestUrl).not.toContain('Riverbend');
-  expect(requestUrl).not.toContain('Avery');
+  expect(requestUrl).not.toContain('Private%20proposal');
+  expect(requestUrl).not.toContain('Private%20customer');
 });
 
 test('@claim:scope-boundaries offers no payment, invoice, or legal e-signature action', async ({ page, request }) => {
