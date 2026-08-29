@@ -1,6 +1,6 @@
-# Landing copy audit
+# Copy audit
 
-Audited 2026-08-29 against the plain-words rules. Counts treat prices and hyphenated terms as one word. No line exceeds 22 words. No line contains a banned word.
+Audited 2026-08-29 for polish round 3 against the plain-words rules. Counts treat prices and hyphenated terms as one word. No line exceeds 22 words. No line contains a banned word.
 
 | Copy | Words | Role |
 | --- | ---: | --- |
@@ -32,7 +32,20 @@ Audited 2026-08-29 against the plain-words rules. Counts treat prices and hyphen
 | Paste an existing Studio Pass license to create more than one quote. | 11 | License detail |
 | Paste a license | 3 | Restore action |
 | Save and compare quote revisions in this browser. | 8 | Footer |
-| Original poster art generated for this product. | 7 | Provenance |
+| Original poster art generated for this product. | 7 | Provenance covered by `art-provenance` |
+
+## Demo banner and standalone 404
+
+| Copy | Words | Role |
+| --- | ---: | --- |
+| Demo — sample data, nothing is saved | 6 | Demo storage notice |
+| Reset demo | 2 | Restore the bundled sample |
+| Open my real vault | 4 | Leave the demo without copying data |
+| This page does not exist | 5 | 404 heading |
+| The address may be wrong, or the page may have moved. | 10 | 404 explanation |
+| Return home | 2 | 404 recovery action |
+| Save and compare quote revisions in this browser. | 8 | Footer on app and 404 routes |
+| Built by Param Factory (external) | 5 | External-link disclosure on app and 404 routes |
 
 ## Terminology
 
@@ -46,4 +59,4 @@ Audited 2026-08-29 against the plain-words rules. Counts treat prices and hyphen
 | The customer’s returned review record | acknowledgment |
 | The paid license | Studio Pass |
 
-Catalog description: “Revise client quotes while keeping every earlier price and scope.” It is 10 words and 66 characters.
+Catalog description: “Revise client quotes without losing earlier prices, scope, or proof of what changed.” It is 13 words and 84 characters.

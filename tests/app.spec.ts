@@ -17,9 +17,16 @@ async function createSavedRealQuote(page: import('@playwright/test').Page) {
 test('landing page explains the job and has no serious accessibility errors', async ({ page }) => {
   const errors: string[] = [];
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Revise quotes without losing earlier prices or scope');
   await expect(page.getByRole('link', { name: 'Try it with sample data' })).toBeVisible();
+  for (const locator of [page.locator('#landing-title'), page.locator('.hero-deck'), page.locator('.hero-actions'), page.locator('.facts')]) {
+    const box = await locator.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.y).toBeGreaterThanOrEqual(0);
+    expect(box!.y + box!.height).toBeLessThanOrEqual(1000);
+  }
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(results.violations.filter((violation) => ['serious','critical'].includes(violation.impact || ''))).toEqual([]);
   expect(errors).toEqual([]);
@@ -66,6 +73,10 @@ test('unknown paths return a designed HTTP 404 with a home link', async ({ page,
   await expect(page).toHaveTitle('Page not found — Quote Revision Vault');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('This page does not exist');
   await expect(page.getByRole('link', { name: 'Return home' })).toHaveAttribute('href', '/');
+  await expect(page.locator('footer')).toContainText('Save and compare quote revisions in this browser.');
+  await expect(page.getByRole('link', { name: 'Built by Param Factory (external)' })).toHaveAttribute('href', 'https://hello-factory.sociobot.in');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://quote-revision-vault.sociobot.in/404.html');
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Page not found — Quote Revision Vault');
 });
 
 test('@claim:revision-history keeps saved revisions and shows their changes', async ({ page }) => {
@@ -171,10 +182,12 @@ test('real review links fail closed when their live status cannot be checked', a
 test('@claim:demo-isolation keeps every sample action outside the real vault and live registry', async ({ page, browser }) => {
   const registryRequests: string[] = [];
   page.on('request', (request) => { if (request.url().includes('/api/review-links/')) registryRequests.push(request.url()); });
-  await page.goto('/?demo=1');
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Try it with sample data' }).click();
+  await expect(page).toHaveURL(/\?demo=1$/);
   await expect(page.getByLabel('Demo mode')).toContainText('Demo — sample data, nothing is saved');
   await expect(page.getByRole('button', { name: 'Reset demo' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Start for real' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Open my real vault' })).toHaveAttribute('href', '/vault');
   await page.locator('#quote-title').fill('Changed only in demo');
   await page.locator('#revision-reason').fill('Demo-only title change');
   await page.getByRole('button', { name: 'Save new revision' }).click();
@@ -318,6 +331,26 @@ test('@claim:scope-boundaries offers no payment, invoice, or legal e-signature a
   await expect(page.getByText('Quote Revision Vault records quote changes. It offers no payments, invoices, or legal e-signatures.')).toBeVisible();
   await expect(page.getByText('It is not a legally binding electronic signature.')).toBeVisible();
   for (const path of ['/checkout', '/invoice', '/signature']) expect((await request.get(path)).status()).toBe(404);
+});
+
+test('@claim:art-provenance verifies the shipped poster generation record', async () => {
+  const design = await readFile('.factory/design.md', 'utf8');
+  const source = await readFile('assets/src/revision-route.png');
+  const sidecar = JSON.parse(await readFile('assets/src/revision-route.prompt.json', 'utf8')) as { prompt?: string; model?: string; date?: string };
+  expect(source.byteLength).toBeGreaterThan(100_000);
+  expect(sidecar.prompt).toContain('art deco railway poster');
+  expect(sidecar.prompt).toContain('no logo');
+  expect(sidecar.model).toBeTruthy();
+  expect(sidecar.date).toBe('2026-08-28');
+  expect(design).toContain('Generated 2026-08-28');
+  expect(design).toContain('/opt/fleet/lib/gen-image.sh');
+});
+
+test('@claim:mit-license verifies the committed MIT permission grant', async () => {
+  const license = await readFile('LICENSE', 'utf8');
+  expect(license).toContain('MIT License');
+  expect(license).toContain('Permission is hereby granted, free of charge');
+  expect(license).toContain('THE SOFTWARE IS PROVIDED "AS IS"');
 });
 
 test('@claim:free-one-quote allows one real quote and asks for a license before the second', async ({ page }) => {

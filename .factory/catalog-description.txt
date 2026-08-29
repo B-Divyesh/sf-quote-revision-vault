@@ -1,1 +1,1 @@
-Revise client quotes while keeping every earlier price and scope.
+Revise client quotes without losing earlier prices, scope, or proof of what changed.

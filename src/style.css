@@ -71,6 +71,7 @@ h3 { font-size: 1.35rem; line-height: 1.1; }
 
 .hero { display: grid; grid-template-columns: 1.12fr .88fr; min-height: calc(100vh - 77px); }
 .hero-copy { align-self: center; padding: 72px 7vw 72px max(20px, calc((100vw - 1180px) / 2)); }
+.hero-copy h1 { max-width: none; font-size: clamp(3rem, 5.4vw, 5rem); line-height: .94; }
 .hero-deck { max-width: 37rem; margin: 26px 0 28px; font-size: clamp(1.15rem, 2vw, 1.45rem); }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; }
 .action-note { max-width: 15rem; color: var(--muted); font-size: .9rem; line-height: 1.35; }

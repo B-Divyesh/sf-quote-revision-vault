@@ -50,7 +50,7 @@ function header() {
       </a>
       <nav class="nav" aria-label="Main navigation">${navLink('/demo','Demo')}${navLink('/vault','Vault')}${navLink('/privacy','Privacy')}</nav>
     </header>
-    ${isDemo ? `<aside class="demo-banner" aria-label="Demo mode"><span>Demo — sample data, nothing is saved</span><button id="reset-demo" type="button">Reset demo</button><a href="/vault" id="start-real">Start for real</a></aside>` : ''}
+    ${isDemo ? `<aside class="demo-banner" aria-label="Demo mode"><span>Demo — sample data, nothing is saved</span><button id="reset-demo" type="button">Reset demo</button><a href="/vault" id="start-real">Open my real vault</a></aside>` : ''}
     ${hasStoredLicense() && !hasLicense() ? `<aside class="license-banner" role="status">The saved Studio Pass is no longer active. Paste a current license to use more than one quote.</aside>` : ''}
     <div class="route-announcer" aria-live="polite" id="route-announcer"></div>`;
 }
@@ -86,7 +86,7 @@ function landing() {
       <div class="hero-copy">
         <h1 id="landing-title" tabindex="-1">Revise quotes without losing earlier prices or scope</h1>
         <p class="hero-deck">For solo service providers who need to prove what changed before billing.</p>
-        <div class="hero-actions"><a class="button" href="/demo">Try it with sample data</a><span class="action-note">See three saved revisions and their price changes.</span></div>
+        <div class="hero-actions"><a class="button" href="/?demo=1">Try it with sample data</a><span class="action-note">See three saved revisions and their price changes.</span></div>
         <ul class="facts"><li>Quote data stays in this browser until you export it or copy a review link</li><li>Works offline after your first visit</li><li>The free vault creates one quote</li></ul>
       </div>
       <div class="hero-art">

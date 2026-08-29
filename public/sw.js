@@ -1,4 +1,4 @@
-const CACHE = 'qrv-shell-v11';
+const CACHE = 'qrv-shell-v12';
 const APP_SHELL = '/app-shell';
 const STATIC_FILES = ['/offline.html', '/offline.css', '/404.html', '/404.css', '/manifest.webmanifest', '/favicon.svg', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-180.png', '/assets/revision-route-480.avif', '/assets/revision-route-480.webp', '/assets/revision-route.avif', '/assets/revision-route.webp', '/assets/revision-route.jpg'];
 
