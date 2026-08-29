@@ -1,0 +1,52 @@
+{
+  "checked_at": "2026-08-29T07:33:30Z",
+  "url": "https://quote-revision-vault.sociobot.in",
+  "deployed_repair_commit": "793ad5c",
+  "first_screen_1440x1000": {
+    "headline": {"top": 144, "bottom": 655.66},
+    "audience": {"top": 681.66, "bottom": 753.56},
+    "primary_action": {"top": 781.56, "bottom": 826.56},
+    "facts": {"top": 874.56, "bottom": 962.31}
+  },
+  "route_metadata": {
+    "/": "Quote Revision Vault — Revise quotes safely",
+    "/demo": "Demo — Quote Revision Vault",
+    "/vault": "Vault — Quote Revision Vault",
+    "/privacy": "Privacy — Quote Revision Vault",
+    "/terms": "Terms — Quote Revision Vault",
+    "canonical_and_open_graph_urls_match_each_route": true,
+    "one_h1_and_main_per_route": true,
+    "forward_and_back_navigation_focus_h1": true
+  },
+  "demo": {
+    "entry": "/?demo=1",
+    "banner": "Demo — sample data, nothing is saved",
+    "actions": ["Reset demo", "Open my real vault"],
+    "database_names_before_exit": ["qrv-demo-v1"],
+    "registry_requests": 0,
+    "off_origin_requests": 0,
+    "reset_restored_sample": true,
+    "real_vault_empty_after_exit": true
+  },
+  "mobile": {
+    "viewport_width": 390,
+    "document_width": 390,
+    "primary_action_bottom": 669.06,
+    "demo_document_width": 390
+  },
+  "not_found": {
+    "status": 404,
+    "title": "Page not found — Quote Revision Vault",
+    "footer_matches_app_routes": true,
+    "external_link_disclosed": true
+  },
+  "accessibility": {
+    "landing_serious_or_critical": 0,
+    "mobile_demo_serious_or_critical": 0
+  },
+  "offline": {
+    "saved_and_reloaded_revision_4": true,
+    "changed_rate": 902
+  },
+  "console_errors_on_standard_routes": 0
+}

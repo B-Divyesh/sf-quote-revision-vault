@@ -1,0 +1,41 @@
+{
+  "source_commit": "793ad5c",
+  "install": {
+    "command": "npm ci",
+    "result": "pass",
+    "vulnerabilities": 0
+  },
+  "claim_commands": {
+    "projects": ["chromium", "mobile-390x844"],
+    "result": "pass",
+    "ids": [
+      "revision-history",
+      "pdf-export",
+      "vault-export",
+      "review-link",
+      "demo-isolation",
+      "local-privacy",
+      "no-tracking-sync",
+      "offline-reload",
+      "free-one-quote",
+      "license-restore",
+      "license-data",
+      "scope-boundaries",
+      "art-provenance",
+      "mit-license"
+    ]
+  },
+  "full_suite": {
+    "command": "npm test",
+    "node_tests": 4,
+    "playwright_tests": 50,
+    "result": "pass"
+  },
+  "typecheck": "pass",
+  "build": {
+    "result": "pass",
+    "output": "dist/index.html",
+    "initial_js_gzip_kb": 13.58,
+    "css_gzip_kb": 4.40
+  }
+}
