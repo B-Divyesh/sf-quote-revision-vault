@@ -1,36 +1,42 @@
-# Quote Revision Vault — independent verification handoff
+# Quote Revision Vault — adversarial review 4 handoff
 
-**Result: PASS**
+**Result: FAIL (0 blocking, 2 medium, 4 low findings)**
 
-**Verified candidate:** `af3b7a06c43bed117964440818db26aba76e6c69`
+**Reviewed candidate:** `7161fb9a8eb635142be9065611fd4f96320d4fed`
 
 **Live URL:** https://quote-revision-vault.sociobot.in
-**Report:** `.factory/verification-7.md`
 
-## What was checked
+**Report:** `.factory/review-4.md`
 
-- Confirm every one of the 14 declared claim commands passed from a clean dependency installation.
-- Confirm `npm test` passed 4 Node API logic checks and 52 browser checks; `npm run typecheck` and `npm run build` also passed.
-- Confirm normal, invalid, boundary, recovery, demo isolation, PDF export, vault export, review-link acknowledgment, and link-blocking workflows.
-- Confirm offline reload after the first visit, active service worker, cache versioning, and update registration.
-- Confirm live request logs contain only the product origin during the demo save flow; license verification is covered by its declared token-only request check.
-- Confirm desktop and 390 px layout, keyboard order, visible focus, reduced motion, 44 px controls, axe serious/critical results, route structure, and console state.
-- Confirm CSP, referrer, nosniff, HSTS, worker and asset caching, API allowance, bundle budgets, and Lighthouse results.
-- Confirm live main JS, CSS, and service worker match the candidate build byte for byte.
+## What was done
 
-## How to run
+- Re-ran the cold first-read review at 390×844 and 1440×1000.
+- Audited every landing/README sentence, heading, and action with word counts.
+- Exercised the one-click demo, save, sample review link, reset, offline reload, and real-vault separation.
+- Ran every command in `.factory/claims.json` from a fresh clone.
+- Rechecked all findings from Reviews 1–3 and Polish 1–3 against live behavior and source.
+- Crawled routes and assets; checked metadata, 404 behavior, focus restoration, request origins, accessibility, and visual identity.
+- Reviewed import/export, sync, and AI leverage against the brief.
+
+No product code was changed. Only this handoff and `.factory/review-4.md` were added or updated.
+
+## Verification results
 
 ```sh
 npm ci
+# Run each test command in .factory/claims.json
 npm test
 npm run typecheck
 npm run build
 ```
 
-Then run every `test` command in `.factory/claims.json` exactly as written. Use `/demo` for the isolated sample workflow.
+- All 14 claim commands passed in desktop and 390 px Chromium.
+- Full suite: 4 API tests and 52 browser tests passed.
+- Typecheck and build passed; `dist/` was produced.
+- Live Playwright axe checks found zero WCAG A/AA violations on `/`, `/demo`, `/privacy`, and `/terms`.
+- The live JS, CSS, and service worker hashes matched the clean build.
+- Live cold/demo/offline flows produced no console error or off-origin request.
 
-## Results and known gaps
+## Known gaps and next steps
 
-Confirm there is no release-blocking, high, medium, or low defect from this verification. Live mobile Lighthouse measured 94 performance and 100 accessibility, with 1,179.5 ms LCP and 0 CLS. The observed review-link write allowance is 30 POST requests per minute; request 31 returned 429 with `Retry-After: 60`.
-
-No product source was changed during verification. `dist/` is produced by the build and should remain the deployment artifact. Evidence is recorded in `.factory/verification-7.md` and `.factory/evidence/verification-7/`.
+Resolve F-4-1 through F-4-6 in `.factory/review-4.md`: list and test the service-side review-link privacy promise; replace “safely”; normalize review-link terminology; keep Privacy in the mobile header; add the build identifier to the 404 footer; and resolve `/ack` sitemap coverage. Re-run the complete claim set and live checks after deployment.
