@@ -1,32 +1,32 @@
-# Polish 1 handoff — Quote Revision Vault
+# Review 2 handoff — Quote Revision Vault
 
 **Completed:** 2026-08-29 UTC
-**Repair commit:** `94a4ffa93ccbf8042dabb265fabc685066ff6004`
-**Pushed:** `origin/main`
-**Deployed URL:** https://quote-revision-vault.sociobot.in
+**Reviewed deployment:** https://quote-revision-vault.sociobot.in
+**Review commit:** pending this handoff commit
 
-All six Review 1 findings are closed. The product keeps its art-deco paper-trail identity while adding route-specific metadata, a real static HTTP 404, expanded claim proof, direct landing language, and a direct isolated `?demo=1` entry path with persistent banner, reset, and start-real controls.
+No product code was modified. `.factory/review-2.md` records a **FAIL** with two blocking findings:
 
-## Exact verification evidence
+1. `/demo` review-link actions call the production status registry, so demo activity can persist remote records despite the “nothing is saved” banner.
+2. An arbitrary pasted Studio Pass token unlocks additional quotes when the verification request fails.
 
-- Fresh clone: `/tmp/qrv-clean-xpqJHl/repo`; `npm ci` completed with 0 vulnerabilities.
-- Every declared claim command passed separately from that clone, in both desktop Chromium and 390×844 mobile: `revision-history`, `pdf-export`, `vault-export`, `review-link`, `demo-isolation`, `local-privacy`, `no-tracking-sync`, `offline-reload`, `free-one-quote`, and `license-restore`.
-- Local complete suite: `npm run typecheck`, `npm run build`, then `npm test` passed: 4 Node registry tests and 42 Playwright tests across desktop/mobile. `dist/` contains `index.html`.
-- Local deployed-artifact check: `verify-url.sh` passed at `http://127.0.0.1:4174/`; observed load 633 ms with zero console errors. `GET /missing-stop` returned HTTP 404 and the designed 404 title, h1, and home link.
-- Live cold check: `verify-url.sh` passed at the deployed URL; observed load 708 ms with zero console errors. Evidence is in `.factory/evidence/polish-1/live/`.
-- Live Playwright check passed for first-screen wording/action, demo reset/isolation, route titles/canonical/OG metadata, HTTP 404, zero serious/critical axe WCAG A/AA findings, and zero off-origin requests.
-- Performance: the current initial application JS is the 43.05 kB source asset (13.45 kB gzip); prior mobile Lighthouse evidence remains 97 performance, 100 accessibility, LCP 1.4 s, TBT 180 ms, and CLS 0. The copy/routing repair does not add initial JavaScript.
+It also records unlisted legal/payment/license-data claims, one overlong technical README sentence, and a generic footer slogan.
 
-`npx @axe-core/cli` was attempted but its Selenium launcher cannot find Chrome in this container. The same WCAG A/AA check passed through the installed Playwright axe integration locally and live.
+## Verification performed
 
-## Run locally
+- Opened the live landing in fresh 390×844 and 1440×1000 contexts: clear cold-read result, no console errors, no off-origin initial requests, no horizontal overflow.
+- Used the live one-click demo: realistic sample displayed immediately; banner, reset, and start-real local isolation worked; demo and real IndexedDB databases were separate.
+- Confirmed the demo remote-persistence defect from the production flow/source path.
+- Confirmed the license defect in a live fresh context by returning HTTP 503 for verification, entering `not-a-license`, and creating two real-vault quotes without a license dialog.
+- In clean clone `/tmp/qrv-review-2-03FGRt/repo`, ran `npm ci`, every `claims.json` command, `npm test`, `npm run typecheck`, and `npm run build`; all completed successfully and build generated `dist/`.
+- Checked live titles, metadata, 404 status/page, crawl links, route focus/back behaviour, headers, and prior Review 1 repairs.
+
+## Re-run
 
 ```sh
 npm ci
 npm test
 npm run typecheck
 npm run build
-npm run preview
 ```
 
-No known gaps remain. See `.factory/polish-1.md` for finding-by-finding closure and evidence.
+Known gaps are the five findings in `.factory/review-2.md`; do not treat the passing existing tests as closure for the two blocking flows.
