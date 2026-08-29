@@ -1,6 +1,6 @@
 # Copy audit
 
-Audited 2026-08-29 for polish round 4 against the plain-words rules. Counts treat prices and hyphenated terms as one word. No line exceeds 22 words. No line contains a banned word.
+Audited 2026-08-29 for polish round 5 against the plain-words rules. Counts treat prices and hyphenated terms as one word. No line exceeds 22 words. No line contains a banned word.
 
 | Copy | Words | Role |
 | --- | ---: | --- |
@@ -28,7 +28,7 @@ Audited 2026-08-29 for polish round 4 against the plain-words rules. Counts trea
 | What this tool does not do | 6 | Section heading |
 | No payments or invoices. | 4 | Boundary |
 | No legal e-signatures. | 3 | Boundary |
-| No customer tracking. | 3 | Boundary |
+| No customer tracking. | 3 | `no-customer-tracking` |
 | No cloud account or automatic sync. | 6 | Boundary |
 | Use a license you already have | 7 | Section heading |
 | Paste an existing Studio Pass license to create more than one quote. | 11 | License detail |
@@ -53,6 +53,13 @@ Audited 2026-08-29 for polish round 4 against the plain-words rules. Counts trea
 | Review one saved quote revision and create an acknowledgment code. | 10 | `/ack` description |
 | Track quote changes and send a customer review link. | 9 | Installed-app description |
 
+## Privacy and README additions
+
+| Copy | Words | Role |
+| --- | ---: | --- |
+| The app does not create customer profiles or track customer activity. | 11 | `no-customer-tracking` privacy and README boundary |
+| An acknowledgment stays with the quote you choose to import. | 10 | Privacy explanation |
+
 ## Terminology
 
 | Concept | One term used |
@@ -65,4 +72,4 @@ Audited 2026-08-29 for polish round 4 against the plain-words rules. Counts trea
 | The customer’s returned review record | acknowledgment |
 | The paid license | Studio Pass |
 
-Catalog description: “Track client quote revisions without losing earlier prices, scope, or proof of what changed.” It is 14 words and 92 characters.
+Catalog description: “Compare quote revisions without losing earlier prices, scope, or proof of changes.” It is 12 words and 82 characters.

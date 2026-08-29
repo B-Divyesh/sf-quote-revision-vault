@@ -341,6 +341,57 @@ test('@claim:no-tracking-sync loads no tracking or automatic cloud sync', async 
   await expect(page.locator('input[type="email"], input[type="password"]')).toHaveCount(0);
 });
 
+test('@claim:no-customer-tracking does not create customer profiles or track customer activity', async ({ page, browser }) => {
+  const requests: Array<{ method: string; path: string; body: string | null }> = [];
+  const outsideOrigins: string[] = [];
+  const watch = (request: import('@playwright/test').Request) => {
+    const url = new URL(request.url());
+    if (url.origin !== 'http://127.0.0.1:4173') outsideOrigins.push(request.url());
+    if (url.pathname.startsWith('/api/')) requests.push({ method: request.method(), path: url.pathname, body: request.postData() });
+  };
+
+  page.on('request', watch);
+  await createSavedRealQuote(page);
+  await page.getByRole('button', { name: 'Create review link' }).click();
+  const reviewUrl = await page.locator('#share-output span').innerText();
+
+  const recipient = await browser.newContext();
+  const recipientPage = await recipient.newPage();
+  recipientPage.on('request', watch);
+  await recipientPage.goto(reviewUrl);
+  await expect(recipientPage.getByRole('heading', { level: 1 })).toHaveText('Review this saved quote');
+  await recipientPage.locator('#ack-name').fill('Mara Chen');
+  await recipientPage.locator('#ack-note').fill('Please use the revised sign scope.');
+  await recipientPage.getByRole('button', { name: 'Create acknowledgment code' }).click();
+  const acknowledgment = await recipientPage.locator('#receipt-result').inputValue();
+
+  await page.getByRole('button', { name: 'Import acknowledgment code' }).click();
+  await page.locator('#receipt-code').fill(acknowledgment);
+  await page.getByRole('button', { name: 'Import code' }).click();
+  await expect(page.getByText('1 acknowledgment imported.')).toBeVisible();
+
+  expect(outsideOrigins).toEqual([]);
+  expect(requests).toHaveLength(2);
+  expect(requests.map((request) => request.method)).toEqual(['POST', 'GET']);
+  expect(requests.every((request) => /^\/api\/review-links\/\d+\/[0-9a-f-]+$/i.test(request.path))).toBe(true);
+  const createRequest = requests.find((request) => request.method === 'POST');
+  expect(createRequest).toBeDefined();
+  expect(Object.keys(JSON.parse(createRequest!.body || '{}')).sort()).toEqual(['action', 'expiresAt', 'ownerKey']);
+  const sent = JSON.stringify(requests);
+  expect(sent).not.toContain('Avery Patel');
+  expect(sent).not.toContain('Mara Chen');
+  expect(sent).not.toContain('Please use the revised sign scope.');
+  expect(requests.some((request) => /customer|profile|activit/i.test(request.path))).toBe(false);
+
+  const stores = await page.evaluate(() => new Promise<string[]>((resolve, reject) => {
+    const open = indexedDB.open('qrv-real-v1');
+    open.onsuccess = () => { resolve([...open.result.objectStoreNames]); open.result.close(); };
+    open.onerror = () => reject(open.error);
+  }));
+  expect(stores).toEqual(['quotes']);
+  await recipient.close();
+});
+
 test('@claim:offline-reload saves and reloads a revision without a network after the first visit', async ({ page, context }) => {
   await page.goto('/demo');
   await expect(page.getByText('Revision 3', { exact: true })).toBeVisible();

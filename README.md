@@ -32,7 +32,7 @@ A customer can return an acknowledgment code. It records review, not a legal sig
 
 ## Privacy and licenses
 
-The app does not load analytics, ads, remote fonts, tracking scripts, or automatic cloud sync. The review-link service receives no quote contents. The service stores a random link ID and expiry date. It stores no quote or customer details.
+The app does not load analytics, ads, remote fonts, tracking scripts, or automatic cloud sync. It does not create customer profiles or track customer activity. The review-link service receives no quote contents. The service stores a random link ID and expiry date. It stores no quote or customer details.
 
 License verification sends only a pasted Studio Pass token to Sociobot. People with a verified Studio Pass can create more than one quote. The app offers no payment form.
 
